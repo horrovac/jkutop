@@ -41,6 +41,8 @@ int main ( void )
 
 
 	dirp = opendir ( "/proc" );
+	stats = malloc ( sizeof ( pstat ) );
+	current = stats;
 
 	while ( 1 )
 	{
@@ -73,13 +75,9 @@ int main ( void )
 					continue;
 				}
 				pid = atoi ( dir_entry->d_name );
-				if ( stats == NULL )
-				{
-					stats = malloc ( sizeof ( pstat ) );
-				}
-				current = stats;
 				if ( sequence )
 				{
+					current = stats;
 					while ( current->pid != pid )
 					{
 						if ( current->next == NULL )
@@ -101,6 +99,7 @@ int main ( void )
 					current->next = malloc ( sizeof ( pstat ) );
 					current = current->next;
 					memset ( current->swap, '\0', sizeof ( int ) * KEEPRECORDS );
+					current->next = NULL;
 				}
 				buffer[chars_read+1] = '\0';
 				sscanf ( buffer, "%d (%[^)]) %c %d %*d %*d %*d %*d %*d %*d %*d %*d %*d %d %d", &current->pid, current->name, state, &current->ppid, &user_jiffies, &kernel_jiffies );
@@ -160,11 +159,11 @@ int main ( void )
 		{
 			/*
 			if ( current->swap[0] )
-			{
-				//printf ( "%-15s %8d %8d %10d %10.2f %10.2f %5c\n", current->name, current->swap[0], current->pid, current->ppid, current->user, current->kernel, current->state );
-				printf ( "%-15s %8d %8d %8d %8d %8d %8d\n", current->name, current->swap[0], current->swap[1], current->swap[2], current->swap[3], current->swap[4], current->swapchange );
-			}
 			*/
+			{
+				printf ( "%-15s %8d %8d %10d %10.2f %10.2f %5c\n", current->name, current->swap[0], current->pid, current->ppid, current->user, current->kernel, current->state );
+				//printf ( "%-15s %8d %8d %8d %8d %8d %8d\n", current->name, current->swap[0], current->swap[1], current->swap[2], current->swap[3], current->swap[4], current->swapchange );
+			}
 			c++;
 			current = current->next;
 		}
