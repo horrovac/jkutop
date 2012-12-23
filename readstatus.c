@@ -16,6 +16,7 @@ int read_status ( pstat *stats, char *pid )
 	char *bolp=NULL;
 	ssize_t read_chars=0;
 	int fd;
+	int i;
 	int swap=0, s=0;
 	int restsize = 0;
 
@@ -27,6 +28,11 @@ int read_status ( pstat *stats, char *pid )
 	strcat ( path, pid );
 	strcat ( path, "/status" );
 	fd = open ( path, O_RDONLY );
+
+	for ( i = KEEPRECORDS; i > 0; i-- )
+	{
+		stats->swap[i] = stats->swap[i-1];
+	}
 
 	do
 	{
@@ -44,7 +50,8 @@ int read_status ( pstat *stats, char *pid )
 			if ( ! strncmp ( bolp, "VmSw", 4 ) )
 			{
 				sscanf ( bolp, "VmSwap:                 %d kB", &s );
-				stats->swap = s;
+				stats->swap[0] = s;
+				stats->swapchange = stats->swap[KEEPRECORDS-1] - stats->swap[0];
 				break;
 			}
 			bolp = eolp;
