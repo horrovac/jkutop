@@ -44,7 +44,6 @@ int main ( void )
 
 	while ( 1 )
 	{
-		sequence = sequence ^ 1;
 		rewinddir ( dirp );
 		while ( ( dir_entry = readdir ( dirp ) ) != NULL ) 
 		{
@@ -79,27 +78,36 @@ int main ( void )
 					stats = malloc ( sizeof ( pstat ) );
 				}
 				current = stats;
-				while ( current->pid != pid )
+				if ( sequence )
 				{
-					if ( current->next == NULL )
+					while ( current->pid != pid )
 					{
-						current->next = malloc ( sizeof ( pstat ) );
-						current = current->next;
-						memset ( current->swap, '\0', sizeof ( int ) * KEEPRECORDS );
-						current->next = NULL;
-						break;
+						if ( current->next == NULL )
+						{
+							current->next = malloc ( sizeof ( pstat ) );
+							current = current->next;
+							memset ( current->swap, '\0', sizeof ( int ) * KEEPRECORDS );
+							current->next = NULL;
+							break;
+						}
+						else
+						{
+							current = current->next;
+						}
 					}
-					else
-					{
-						current = current->next;
-					}
+				}
+				else
+				{
+					current->next = malloc ( sizeof ( pstat ) );
+					current = current->next;
+					memset ( current->swap, '\0', sizeof ( int ) * KEEPRECORDS );
 				}
 				buffer[chars_read+1] = '\0';
 				sscanf ( buffer, "%d (%[^)]) %c %d %*d %*d %*d %*d %*d %*d %*d %*d %*d %d %d", &current->pid, current->name, state, &current->ppid, &user_jiffies, &kernel_jiffies );
 				current->state = state[0];
 				current->user = user_jiffies / HZ;
 				current->kernel = kernel_jiffies / HZ;
-				current->updated = sequence;
+				current->sequence = sequence;
 				read_status ( current, dir_entry->d_name );
 				/*
 				if ( ! process_filter ( stats[c]->name ) )
@@ -126,7 +134,7 @@ int main ( void )
 		while ( current != NULL )
 		{
 			temp = current->next;
-			if ( temp != NULL &&  temp->updated != sequence )
+			if ( temp != NULL &&  temp->sequence != sequence )
 			{
 				current->next = temp->next;
 				free ( temp );
@@ -161,6 +169,7 @@ int main ( void )
 			current = current->next;
 		}
 		printf ( "have %d records (seq %d)\n", c, sequence );
+		sequence++;
 		sleep ( 1 );
 	}
 	return ( 0 );

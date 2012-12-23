@@ -12,15 +12,9 @@ typedef struct pidstat
 	float	kernel;
 	int		swap[KEEPRECORDS];
 	int		swapchange;
-	int		updated; /* indication of activity, see comment below */
+	int		sequence; /* used to recognise old entries for removal */
 	struct pidstat *next;
 }pstat;
-
-/*
-the "updated" element is flicked between 0 and 1 at each pass and is used
-to weed out the entries which have not been updated in the last pass
-(which means that the process went away)
-*/
 
 int compare_elements ( const void *first, const void *second );
 int process_filter ( const char *execname );
