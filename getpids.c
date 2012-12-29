@@ -161,7 +161,7 @@ int main ( void )
 			if ( current->swap[0] )
 			*/
 			{
-				printf ( "%-15s %8d %8d %10d %10.2f %10.2f %5c\n", current->name, current->swap[0], current->pid, current->ppid, current->user, current->kernel, current->state );
+				//printf ( "%-15s %8d %8d %10d %10.2f %10.2f %5c\n", current->name, current->swap[0], current->pid, current->ppid, current->user, current->kernel, current->state );
 				//printf ( "%-15s %8d %8d %8d %8d %8d %8d\n", current->name, current->swap[0], current->swap[1], current->swap[2], current->swap[3], current->swap[4], current->swapchange );
 			}
 			c++;
@@ -169,6 +169,7 @@ int main ( void )
 		}
 		printf ( "have %d records (seq %d)\n", c, sequence );
 		sequence++;
+		break;
 		sleep ( 1 );
 	}
 	return ( 0 );
