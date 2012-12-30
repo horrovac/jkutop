@@ -29,7 +29,7 @@ int read_status ( pstat *stats, char *pid )
 	strcat ( path, "/status" );
 	fd = open ( path, O_RDONLY );
 
-	for ( i = KEEPRECORDS; i > 0; i-- )
+	for ( i = KEEPRECORDS - 1; i > 0; i-- )
 	{
 		stats->swap[i] = stats->swap[i-1];
 	}

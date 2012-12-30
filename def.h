@@ -14,7 +14,7 @@ typedef struct pidstat
 	int		swapchange;
 	int		sequence; /* used to recognise old entries for removal */
 	struct pidstat *next;
-}pstat;
+}pstat, *ppstat;
 
 int compare_elements ( const void *first, const void *second );
 int process_filter ( const char *execname );

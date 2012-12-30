@@ -11,8 +11,41 @@
 
 #define BUFFSIZE 1024
 #define ALLOC_NUM 40000
+#define	HASH_TABLE_SIZE 1000
 
 const char *blacklist[] = { "ksoftirqd/", "migration/", "events/", "kintegrityd/", "kblockd/", "kstop/", "kondemand/", "kswapd", "aio/", "crypto/", "ata/", "xfslogd/", "xfsdatad/", "xfsconvertd/", "rpciod/", "kworker", NULL };
+ppstat stats[HASH_TABLE_SIZE];
+
+ppstat get_record ( int pid )
+{
+	ppstat current;
+	int key = pid % HASH_TABLE_SIZE;
+	if ( stats[key] == NULL )
+	{
+		stats[key] = malloc ( sizeof ( pstat ) );
+		memset ( stats[key]->swap, 0, sizeof ( int ) * 5 );
+		stats[key]->next = NULL;
+		return stats[key];
+	}
+	else
+	{
+		current = stats[key];
+		while ( current->next != NULL )
+		{
+			current = current->next;
+			if ( current->pid == pid )
+			{
+				return current;
+			}
+		}
+		current->next = malloc ( sizeof ( pstat ) );
+		current = current->next;
+		memset ( current->swap, 0, sizeof ( int ) * 5 );
+		current->next = NULL;
+	}
+	return ( current );
+}
+
 
 
 int main ( void )
@@ -30,7 +63,6 @@ int main ( void )
 	int chars_read;
 	int user_jiffies;
 	int kernel_jiffies;
-	pstat *stats = NULL;
 	pstat *current = NULL;
 	pstat *temp = NULL;
 	/*
@@ -41,8 +73,6 @@ int main ( void )
 
 
 	dirp = opendir ( "/proc" );
-	stats = malloc ( sizeof ( pstat ) );
-	current = stats;
 
 	while ( 1 )
 	{
@@ -75,6 +105,8 @@ int main ( void )
 					continue;
 				}
 				pid = atoi ( dir_entry->d_name );
+				current = get_record ( pid );
+				/*
 				if ( sequence )
 				{
 					current = stats;
@@ -101,6 +133,7 @@ int main ( void )
 					memset ( current->swap, '\0', sizeof ( int ) * KEEPRECORDS );
 					current->next = NULL;
 				}
+				*/
 				buffer[chars_read+1] = '\0';
 				sscanf ( buffer, "%d (%[^)]) %c %d %*d %*d %*d %*d %*d %*d %*d %*d %*d %d %d", &current->pid, current->name, state, &current->ppid, &user_jiffies, &kernel_jiffies );
 				current->state = state[0];
@@ -129,19 +162,22 @@ int main ( void )
 		remove entries from exited jobs
 		fprintf ( stderr, "hoy!\n" );
 		*/
-		current = stats;
-		while ( current != NULL )
+		for ( i = 0; i < HASH_TABLE_SIZE; i++ )
 		{
-			temp = current->next;
-			if ( temp != NULL &&  temp->sequence != sequence )
+			current = stats[i];
+			while ( current != NULL )
 			{
-				current->next = temp->next;
-				free ( temp );
-				current = current->next;
-			}
-			else
-			{
-				current = current->next;
+				temp = current->next;
+				if ( temp != NULL &&  temp->sequence != sequence )
+				{
+					current->next = temp->next;
+					free ( temp );
+					current = current->next;
+				}
+				else
+				{
+					current = current->next;
+				}
 			}
 		}
 
@@ -153,23 +189,26 @@ int main ( void )
 		printf ( "%-15s %8s %8s %10s %10s %10s %5s\n", "CMD", "SWAP (kB)", "PID", "PPID", "USER", "SYSTEM", "STATE" );
 		*/
 	
-		current = stats->next;
 		c = 0;
-		while ( current != NULL )
+		for ( i = 0; i < HASH_TABLE_SIZE; i++ )
 		{
-			/*
-			if ( current->swap[0] )
-			*/
+			current = stats[i];
+			while ( current != NULL )
 			{
-				//printf ( "%-15s %8d %8d %10d %10.2f %10.2f %5c\n", current->name, current->swap[0], current->pid, current->ppid, current->user, current->kernel, current->state );
-				//printf ( "%-15s %8d %8d %8d %8d %8d %8d\n", current->name, current->swap[0], current->swap[1], current->swap[2], current->swap[3], current->swap[4], current->swapchange );
+				/*
+				if ( current->swap[0] )
+				*/
+				{
+					printf ( "%-15s %8d %8d %10d %10.2f %10.2f %5c\n", current->name, current->swap[0], current->pid, current->ppid, current->user, current->kernel, current->state );
+					//printf ( "%-15s %8d %8d %8d %8d %8d %8d\n", current->name, current->swap[0], current->swap[1], current->swap[2], current->swap[3], current->swap[4], current->swapchange );
+				}
+				c++;
+				current = current->next;
 			}
-			c++;
-			current = current->next;
 		}
-		printf ( "have %d records (seq %d)\n", c, sequence );
+		printf ( "%d records (seq %d)\n", c, sequence );
 		sequence++;
-		break;
+		//break;
 		sleep ( 1 );
 	}
 	return ( 0 );
