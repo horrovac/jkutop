@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <asm/param.h>		/* neded for HZ definition */
+#include <time.h>
 #include "def.h"
 
 #define BUFFSIZE 1024
@@ -206,14 +207,14 @@ int main ( void )
 				if ( current->swap[0] )
 				*/
 				{
-					printf ( "%-15s %8d %8d %10d %10.2f %10.2f %5c\n", current->name, current->swap[0], current->pid, current->ppid, current->user, current->kernel, current->state );
+					//printf ( "%-15s %8d %8d %10d %10.2f %10.2f %5c\n", current->name, current->swap[0], current->pid, current->ppid, current->user, current->kernel, current->state );
 					//printf ( "%-15s %8d %8d %8d %8d %8d %8d\n", current->name, current->swap[0], current->swap[1], current->swap[2], current->swap[3], current->swap[4], current->swapchange );
 				}
 				c++;
 				current = current->next;
 			}
 		}
-		printf ( "%d records (seq %d)\n", c, sequence );
+		printf ( "%d records (seq %d), %d\n", c, sequence, time( NULL ) );
 		sequence++;
 		//break;
 		sleep ( 1 );
