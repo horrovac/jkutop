@@ -1,4 +1,7 @@
 #define KEEPRECORDS 5
+#define BUFFSIZE 1024
+#define ALLOC_CHUNK 1000
+#define	HASH_TABLE_SIZE 1000
 
 typedef struct pidstat
 {
@@ -19,3 +22,5 @@ typedef struct pidstat
 int compare_elements ( const void *first, const void *second );
 int process_filter ( const char *execname );
 int read_status ( pstat *stats, char *pid );
+int sort_entries ( void );
+ppstat get_record ( int pid );
