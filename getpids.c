@@ -65,6 +65,9 @@ int main ( void )
 	int kernel_jiffies;
 	pstat *current = NULL;
 	pstat *temp = NULL;
+	pstat *stats_buffer;
+
+	stats_buffer = malloc ( sizeof ( pstat ) );
 	/*
 	int blacklist_len[] = { 10, 10, 7, 12, 8, 6, 10, 7, 4, 7, 4, 8, 9, 12, 7, 7, 0 };
 	stats = malloc ( sizeof ( pstat * ) * ALLOC_NUM );
@@ -105,7 +108,6 @@ int main ( void )
 					continue;
 				}
 				pid = atoi ( dir_entry->d_name );
-				current = get_record ( pid );
 				/*
 				if ( sequence )
 				{
@@ -135,12 +137,17 @@ int main ( void )
 				}
 				*/
 				buffer[chars_read+1] = '\0';
-				sscanf ( buffer, "%d (%[^)]) %c %d %*d %*d %*d %*d %*d %*d %*d %*d %*d %d %d", &current->pid, current->name, state, &current->ppid, &user_jiffies, &kernel_jiffies );
-				current->state = state[0];
-				current->user = user_jiffies / HZ;
-				current->kernel = kernel_jiffies / HZ;
-				current->sequence = sequence;
-				read_status ( current, dir_entry->d_name );
+				sscanf ( buffer, "%d (%[^)]) %c %d %*d %*d %*d %*d %*d %*d %*d %*d %*d %d %d", &stats_buffer->pid, stats_buffer->name, state, &stats_buffer->ppid, &user_jiffies, &kernel_jiffies );
+				if ( ! process_filter ( stats_buffer->name ) )
+				{
+					current = get_record ( pid );
+					memcpy ( current, stats_buffer, sizeof ( pstat ) );
+					current->state = state[0];
+					current->user = user_jiffies / HZ;
+					current->kernel = kernel_jiffies / HZ;
+					current->sequence = sequence;
+					read_status ( current, dir_entry->d_name );
+				}
 				/*
 				if ( ! process_filter ( stats[c]->name ) )
 				{
