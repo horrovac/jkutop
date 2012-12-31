@@ -5,22 +5,26 @@
 
 typedef struct pidstat
 {
-	char name[256];
-	char state;
-	int		uid;
-	int		euid;
-	int		pid;
-	int		ppid;
-	float	user;
-	float	kernel;
-	int		swap[KEEPRECORDS];
-	int		swapchange;
-	int		sequence; /* used to recognise old entries for removal */
-	struct pidstat *next;
+	char			name[256];
+	char			state;
+	int				uid;
+	int				euid;
+	int				pid;
+	int				ppid;
+	unsigned long	user;
+	unsigned long	kernel;
+	long			priority;
+	long			niceness;
+	unsigned long	virt;
+	long			res;
+	int				swap[KEEPRECORDS];
+	int				swapchange;
+	int				sequence; /* used to recognise old entries for removal */
+	struct pidstat	*next;
 }pstat, *ppstat;
 
 int compare_elements ( const void *first, const void *second );
 int process_filter ( const char *execname );
 int read_status ( pstat *stats, char *pid );
 int sort_entries ( void );
-ppstat get_record ( int pid );
+ppstat get_record (	int pid );

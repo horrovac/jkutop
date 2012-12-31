@@ -18,22 +18,22 @@ int main ( void )
 {
 	DIR				*dirp;
 	struct dirent	*dir_entry;
-	int fd;
-	char path[1024];
-	char buffer[BUFFSIZE];
-	char state[1];
-	int i;
-	int allocated=1000;
-	int c=0;
-	int sequence=0;
-	int chars_read;
-	int user_jiffies;
-	int kernel_jiffies;
-	pstat *current = NULL;
-	pstat *temp = NULL;
-	pstat *stats_buffer;
+	int				fd;
+	char			path[1024];
+	char			buffer[BUFFSIZE];
+	char			state[1];
+	int				i;
+	int				allocated=1000;
+	int				c=0;
+	int				sequence=0;
+	int				chars_read;
+	int				pagesize;
+	pstat			*current = NULL;
+	pstat			*temp = NULL;
+	pstat			*stats_buffer;
 
 	stats_array = malloc ( allocated * sizeof ( ppstat ) );
+	pagesize = getpagesize();
 
 	/*
 	store stats here temporarily. This is for blacklisting, if the records
@@ -78,7 +78,7 @@ int main ( void )
 					continue;
 				}
 				buffer[chars_read+1] = '\0';
-				sscanf ( buffer, "%d (%[^)]) %c %d %*d %*d %*d %*d %*d %*d %*d %*d %*d %d %d", &stats_buffer->pid, stats_buffer->name, state, &stats_buffer->ppid, &user_jiffies, &kernel_jiffies );
+				sscanf ( buffer, "%d (%[^)]) %c %d %*d %*d %*d %*d %*d %*d %*d %*d %*d %lu %lu %*d %*d %ld %ld %*d %*d %*d %lu %ld", &stats_buffer->pid, stats_buffer->name, state, &stats_buffer->ppid, &stats_buffer->user, &stats_buffer->kernel, &stats_buffer->priority, &stats_buffer->niceness, &stats_buffer->virt, &stats_buffer->res );
 				if ( ! process_filter ( stats_buffer->name ) )
 				{
 					/*
@@ -96,8 +96,6 @@ int main ( void )
 
 					memcpy ( current, stats_buffer, sizeof ( pstat ) );
 					current->state = state[0];
-					current->user = user_jiffies / HZ;
-					current->kernel = kernel_jiffies / HZ;
 					current->sequence = sequence;
 					read_status ( current, dir_entry->d_name );
 				}
@@ -159,7 +157,8 @@ int main ( void )
 				if ( current->swap[0] )
 				*/
 				{
-					printf ( "%-15s %8d %8d %10d %10.2f %10.2f %5c\n", stats_array[i]->name, stats_array[i]->swap[0], stats_array[i]->pid, stats_array[i]->ppid, stats_array[i]->user, stats_array[i]->kernel, stats_array[i]->state );
+					printf ( "%10d %2d %3d %10d %10d %c %-20s\n", stats_array[i]->pid, stats_array[i]->priority, stats_array[i]->niceness, stats_array[i]->virt * pagesize, stats_array[i]->res * pagesize, stats_array[i]->state, stats_array[i]->name );
+					//printf ( "%-15s %8d %8d %10d %10.2f %10.2f %5c\n", stats_array[i]->name, stats_array[i]->swap[0], stats_array[i]->pid, stats_array[i]->ppid, (float) stats_array[i]->user / HZ, (float) stats_array[i]->kernel / HZ, stats_array[i]->state );
 					//printf ( "%-15s %8d %8d %8d %8d %8d %8d\n", current->name, current->swap[0], current->swap[1], current->swap[2], current->swap[3], current->swap[4], current->swapchange );
 				}
 				//c++;
