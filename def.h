@@ -27,4 +27,5 @@ int compare_elements ( const void *first, const void *second );
 int process_filter ( const char *execname );
 int read_status ( pstat *stats, char *pid );
 int sort_entries ( void );
+int print_it ( ppstat *stats_array, int count );
 ppstat get_record (	int pid );
