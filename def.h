@@ -11,8 +11,10 @@ typedef struct pidstat
 	int				euid;
 	int				pid;
 	int				ppid;
-	unsigned long	user;
-	unsigned long	kernel;
+	unsigned long	utime;
+	unsigned long	stime;
+	unsigned long	cutime;
+	unsigned long	cstime;
 	long			priority;
 	long			niceness;
 	unsigned long	virt;
