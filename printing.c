@@ -9,7 +9,8 @@ int print_it ( ppstat *stats_array, int count )
 {
 	int i;
 	int c;
-	int miliseconds, ms, sec, min;
+	long miliseconds;
+	int ms, sec, min, h;
 	struct passwd *pwentry;
 	float temp;
 	char suffixes[] = " kmgt";
@@ -66,11 +67,12 @@ int print_it ( ppstat *stats_array, int count )
 				calculate values for time display
 				*/
 				miliseconds = ( ( stats_array[i]->utime + stats_array[i]->stime + stats_array[i]->cutime + stats_array[i]->cstime ) / (float) sysconf ( _SC_CLK_TCK ) ) * 100;
+				printf ( "%10ld ", miliseconds );
 				ms = miliseconds % 100;
 				miliseconds /= 100;
 				sec = miliseconds % 60;
-				miliseconds /= 60;
 				min = miliseconds / 60;
+
 				if ( min >= 1000 )
 				{
 					printf ( "%6d:%02d ", min, sec );
@@ -82,7 +84,7 @@ int print_it ( ppstat *stats_array, int count )
 				/*
 				reset for the next round
 				*/
-				min = 0;
+				h = 0;
 
 				printf ( "%-20s\n", stats_array[i]->name );
 				//printf ( "%c %10lu %-20s\n", stats_array[i]->state, ( stats_array[i]->utime + stats_array[i]->stime + stats_array[i]->cutime + stats_array[i]->cstime ) / sysconf ( _SC_CLK_TCK ), stats_array[i]->name );
