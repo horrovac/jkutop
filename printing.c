@@ -65,7 +65,7 @@ int print_it ( ppstat *stats_array, int count )
 				/*
 				calculate values for time display
 				*/
-				miliseconds = ( ( stats_array[i]->utime + stats_array[i]->stime ) / (float) sysconf ( _SC_CLK_TCK ) ) * 100;
+				miliseconds = ( ( stats_array[i]->utime + stats_array[i]->stime + stats_array[i]->cutime + stats_array[i]->cstime ) / (float) sysconf ( _SC_CLK_TCK ) ) * 100;
 				ms = miliseconds % 100;
 				miliseconds /= 100;
 				sec = miliseconds % 60;
