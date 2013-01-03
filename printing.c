@@ -10,11 +10,11 @@ int print_it ( ppstat *stats_array, int count )
 	int i;
 	int c;
 	long miliseconds;
-	int ms, sec, min, h;
+	int ms, sec, min;
 	struct passwd *pwentry;
 	float temp;
 	char suffixes[] = " kmgt";
-	printf ( "%-15s %8s %8s %10s %10s %10s %5s\n", "CMD", "SWAP (kB)", "PID", "PPID", "USER", "SYSTEM", "STATE" );
+	printf ( "\033[7m%6s %-8s %2s %3s %5s %4s %1s %9s %-s\033[0m\n", "PID", "USER", "PR", "NI", "VIRT", "RES", "S", "TIME+", "COMMAND                 " );
 
 	//c = 0;
 	for ( i = 0; i < count; i++ )
@@ -49,7 +49,7 @@ int print_it ( ppstat *stats_array, int count )
 				{
 					printf ( "%5ld ", (long) temp );
 				}
-				temp = stats_array[i]->res;
+				temp = stats_array[i]->res * getpagesize();
 				for ( c = 0; temp > 1000; c++ )
 				{
 					temp /= 1024;
@@ -66,8 +66,7 @@ int print_it ( ppstat *stats_array, int count )
 				/*
 				calculate values for time display
 				*/
-				miliseconds = ( ( stats_array[i]->utime + stats_array[i]->stime + stats_array[i]->cutime + stats_array[i]->cstime ) / (float) sysconf ( _SC_CLK_TCK ) ) * 100;
-				printf ( "%10ld ", miliseconds );
+				miliseconds = ( ( stats_array[i]->utime + stats_array[i]->stime ) / (float) sysconf ( _SC_CLK_TCK ) ) * 100;
 				ms = miliseconds % 100;
 				miliseconds /= 100;
 				sec = miliseconds % 60;
@@ -84,7 +83,7 @@ int print_it ( ppstat *stats_array, int count )
 				/*
 				reset for the next round
 				*/
-				h = 0;
+				min = 0;
 
 				printf ( "%-20s\n", stats_array[i]->name );
 				//printf ( "%c %10lu %-20s\n", stats_array[i]->state, ( stats_array[i]->utime + stats_array[i]->stime + stats_array[i]->cutime + stats_array[i]->cstime ) / sysconf ( _SC_CLK_TCK ), stats_array[i]->name );
