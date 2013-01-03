@@ -27,6 +27,7 @@ int print_it ( ppstat *stats_array, int count )
 			*/
 			{
 				pwentry = getpwuid ( stats_array[i]->uid );
+				pwentry->pw_name[8] = '\0';
 				printf ( "%6d %8s ", stats_array[i]->pid, pwentry->pw_name );
 				if ( stats_array[i]->priority < 0 )
 				{
