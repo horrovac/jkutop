@@ -1,4 +1,4 @@
-FLAGS = -g -Wall -I/usr/src/linux-2.6.32.49-0.3/include
+FLAGS = -g -Wall
 
 jkutop: jkutop.o readstatus.o sorting.o printing.o
 	${CC} ${FLAGS} -o jkutop jkutop.o readstatus.o sorting.o printing.o

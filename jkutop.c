@@ -26,6 +26,7 @@ int main ( void )
 	int				c=0;
 	int				sequence=0;
 	int				chars_read;
+	struct timeval	tp;
 	pstat			*current = NULL;
 	pstat			*temp = NULL;
 	pstat			*stats_buffer;
@@ -94,6 +95,7 @@ int main ( void )
 					memcpy ( current, stats_buffer, sizeof ( pstat ) );
 					current->state = state[0];
 					current->sequence = sequence;
+					gettimeofday ( &current->tp, NULL );
 					read_status ( current, dir_entry->d_name );
 				}
 				/*
@@ -142,8 +144,8 @@ int main ( void )
 		print_it ( stats_array, c );
 
 		sequence++;
-		break;
-		//sleep ( 1 );
+		//break;
+		sleep ( 1 );
 	}
 	return ( 0 );
 }
@@ -175,6 +177,8 @@ ppstat get_record ( int pid )
 		stats[key] = malloc ( sizeof ( pstat ) );
 		memset ( stats[key]->swap, 0, sizeof ( int ) * 5 );
 		stats[key]->next = NULL;
+		stats[key]->tp.tv_sec = 0;
+		stats[key]->tp.tv_usec = 0;
 		return stats[key];
 	}
 	else
@@ -191,6 +195,8 @@ ppstat get_record ( int pid )
 		current->next = malloc ( sizeof ( pstat ) );
 		current = current->next;
 		memset ( current->swap, 0, sizeof ( int ) * 5 );
+		current->tp.tv_sec = 0;
+		current->tp.tv_usec = 0;
 		current->next = NULL;
 	}
 	return ( current );

@@ -86,7 +86,8 @@ int print_it ( ppstat *stats_array, int count )
 				*/
 				min = 0;
 
-				printf ( "%-20s\n", stats_array[i]->name );
+				printf ( "%-20s", stats_array[i]->name );
+				printf ( "%20ld.%6ld\n", stats_array[i]->tp.tv_sec, stats_array[i]->tp.tv_usec );
 				//printf ( "%c %10lu %-20s\n", stats_array[i]->state, ( stats_array[i]->utime + stats_array[i]->stime + stats_array[i]->cutime + stats_array[i]->cstime ) / sysconf ( _SC_CLK_TCK ), stats_array[i]->name );
 
 				//printf ( "%-15s %8d %8d %10d %10.2f %10.2f %5c\n", stats_array[i]->name, stats_array[i]->swap[0], stats_array[i]->pid, stats_array[i]->ppid, (float) stats_array[i]->user / HZ, (float) stats_array[i]->kernel / HZ, stats_array[i]->state );

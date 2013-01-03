@@ -1,3 +1,5 @@
+#include <sys/time.h>
+
 #define KEEPRECORDS 5
 #define BUFFSIZE 1024
 #define ALLOC_CHUNK 1000
@@ -21,6 +23,7 @@ typedef struct pidstat
 	long			res;
 	int				swap[KEEPRECORDS];
 	int				swapchange;
+	struct timeval	tp;
 	int				sequence; /* used to recognise old entries for removal */
 	struct pidstat	*next;
 }pstat, *ppstat;
