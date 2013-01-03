@@ -14,7 +14,7 @@ int print_it ( ppstat *stats_array, int count )
 	struct passwd *pwentry;
 	float temp;
 	char suffixes[] = " kmgt";
-	printf ( "\033[7m%6s %-8s %2s %3s %5s %4s %1s %9s %-s\033[0m\n", "PID", "USER", "PR", "NI", "VIRT", "RES", "S", "TIME+", "COMMAND                 " );
+	printf ( "\033[7m%7s %-8s %2s %3s %5s %4s %1s %9s %-s\033[0m\n", "PID", "USER", "PR", "NI", "VIRT", "RES", "S", "TIME+", "COMMAND                 " );
 
 	//c = 0;
 	for ( i = 0; i < count; i++ )

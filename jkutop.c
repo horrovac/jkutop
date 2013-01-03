@@ -142,8 +142,8 @@ int main ( void )
 		print_it ( stats_array, c );
 
 		sequence++;
-		//break;
-		sleep ( 1 );
+		break;
+		//sleep ( 1 );
 	}
 	return ( 0 );
 }
