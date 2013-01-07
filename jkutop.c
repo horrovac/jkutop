@@ -10,14 +10,56 @@
 #include "def.h"
 
 const char *blacklist[] = { "ksoftirqd/", "migration/", "events/", "kintegrityd/", "kblockd/", "kstop/", "kondemand/", "kswapd", "aio/", "crypto/", "ata/", "xfslogd/", "xfsdatad/", "xfsconvertd/", "rpciod/", "kworker", NULL };
+float	ticks_passed;
 ppstat stats[HASH_TABLE_SIZE];
 ppstat *stats_array = NULL;
+
+int clean_up ( int sequence )
+{
+	ppstat current;
+	ppstat prev;
+	int i;
+	int c = 0;
+	for ( i = 0; i < HASH_TABLE_SIZE; i++ )
+	{
+		current = stats[i];
+		while ( current != NULL )
+		{
+			if ( current->sequence != sequence )
+			{
+				if ( current == stats[i] )
+				{
+					stats[i] = current->next;
+					free ( current );
+					current = stats[i];
+				}
+				else
+				{
+					prev->next = current->next;
+					free ( current );
+					current = prev->next;
+				}
+				c++;
+			}
+			else
+			{
+				prev = current;
+				current = current->next;
+			}
+		}
+	}
+	return c;
+}
+
+
+
 
 int main ( void )
 {
 	DIR				*dirp;
 	struct dirent	*dir_entry;
 	int				fd;
+	int				procstat;	/* fd for /proc/stat */
 	char			path[1024];
 	char			buffer[BUFFSIZE];
 	char			state[1];
@@ -26,9 +68,9 @@ int main ( void )
 	int				c=0;
 	int				sequence=0;
 	int				chars_read;
-	struct timeval	tp;
+	unsigned long long		ticks = 0, ticks_before, user, nice, system, idle;
 	pstat			*current = NULL;
-	pstat			*temp = NULL;
+	//pstat			*temp = NULL;
 	pstat			*stats_buffer;
 
 	stats_array = malloc ( allocated * sizeof ( ppstat ) );
@@ -42,9 +84,26 @@ int main ( void )
 	stats_buffer = malloc ( sizeof ( pstat ) );
 	
 	dirp = opendir ( "/proc" );
+	if ( ! ( procstat = open ( "/proc/stat", O_RDONLY )) )
+	{
+		fprintf ( stderr, "Can't open /proc/stat, something's effed.\n" );
+		return 0;
+	}
 
 	while ( 1 )
 	{
+		/* get number of ticks passed since last pass */
+		lseek ( procstat, 0, SEEK_SET );
+		if ( read ( procstat, buffer, 256 ) )
+		{
+			ticks_before = ticks;
+			sscanf ( buffer, "%*s %llu %llu %llu %llu", &user, &nice, &system, &idle );
+			ticks = user + nice + system + idle;
+			if ( ticks_before != 0 )
+			{
+				ticks_passed = ( ticks - ticks_before ) / sysconf ( _SC_NPROCESSORS_ONLN );
+			}
+		}
 		rewinddir ( dirp );
 		c = 0;
 		while ( ( dir_entry = readdir ( dirp ) ) != NULL ) 
@@ -76,7 +135,7 @@ int main ( void )
 					continue;
 				}
 				buffer[chars_read+1] = '\0';
-				sscanf ( buffer, "%d (%[^)]) %c %d %*d %*d %*d %*d %*d %*d %*d %*d %*d %lu %lu %ld %ld %ld %ld %*d %*d %*d %lu %ld", &stats_buffer->pid, stats_buffer->name, state, &stats_buffer->ppid, &stats_buffer->utime, &stats_buffer->stime, &stats_buffer->cutime, &stats_buffer->cstime, &stats_buffer->priority, &stats_buffer->niceness, &stats_buffer->virt, &stats_buffer->res );
+				sscanf ( buffer, "%d (%[^)]) %c %d %*d %*d %*d %*d %*d %*d %*d %*d %*d %Lu %Lu %Ld %Ld %ld %ld %*d %*d %*d %lu %ld", &stats_buffer->pid, stats_buffer->name, state, &stats_buffer->ppid, &stats_buffer->utime, &stats_buffer->stime, &stats_buffer->cutime, &stats_buffer->cstime, &stats_buffer->priority, &stats_buffer->niceness, &stats_buffer->virt, &stats_buffer->res );
 				if ( ! process_filter ( stats_buffer->name ) )
 				{
 					/*
@@ -92,10 +151,16 @@ int main ( void )
 						stats_array = realloc ( stats_array, allocated * sizeof ( ppstat ) );
 					}
 
+					/*
+					copy the last number of ticks used to the utime/stime_lastpass element
+					so we can use it to calculate the CPU usage percentage
+					*/
+					stats_buffer->utime_lastpass = current->utime;
+					stats_buffer->stime_lastpass = current->stime;
+					stats_buffer->state = state[0];
+					stats_buffer->sequence = sequence;
+					stats_buffer->next = current->next;
 					memcpy ( current, stats_buffer, sizeof ( pstat ) );
-					current->state = state[0];
-					current->sequence = sequence;
-					gettimeofday ( &current->tp, NULL );
 					read_status ( current, dir_entry->d_name );
 				}
 				/*
@@ -118,26 +183,33 @@ int main ( void )
 		/*
 		remove entries from exited jobs (recognisable by an old
 		sequence number)
-		*/
 		for ( i = 0; i < HASH_TABLE_SIZE; i++ )
 		{
+			temp = NULL;
 			current = stats[i];
 			while ( current != NULL )
 			{
 				temp = current->next;
-				if ( temp != NULL &&  temp->sequence != sequence )
+				if ( current->sequence != sequence )
 				{
-					current->next = temp->next;
-					free ( temp );
-					current = current->next;
+					if ( current == stats[i] )
+					{
+						stats[i] = temp;
+					}
+					free ( current );
+					prev = temp;
+					current = temp;
 				}
 				else
 				{
+					prev = current;
 					current = current->next;
 				}
 			}
 		}
+		*/
 
+		clean_up ( sequence );
 	
 		qsort ( stats_array, c, sizeof ( pstat * ), compare_elements );
 
@@ -170,34 +242,30 @@ int process_filter ( const char *execname )
 
 ppstat get_record ( int pid )
 {
-	ppstat current;
+	ppstat current = NULL;
+	ppstat prev = NULL;
 	int key = pid % HASH_TABLE_SIZE;
 	if ( stats[key] == NULL )
 	{
 		stats[key] = malloc ( sizeof ( pstat ) );
 		memset ( stats[key]->swap, 0, sizeof ( int ) * 5 );
 		stats[key]->next = NULL;
-		stats[key]->tp.tv_sec = 0;
-		stats[key]->tp.tv_usec = 0;
 		return stats[key];
 	}
 	else
 	{
 		current = stats[key];
-		while ( current->next != NULL )
+		while ( current != NULL )
 		{
-			current = current->next;
 			if ( current->pid == pid )
 			{
 				return current;
 			}
+			prev = current;
+			current = current->next;
 		}
-		current->next = malloc ( sizeof ( pstat ) );
-		current = current->next;
-		memset ( current->swap, 0, sizeof ( int ) * 5 );
-		current->tp.tv_sec = 0;
-		current->tp.tv_usec = 0;
-		current->next = NULL;
+		prev->next = malloc ( sizeof ( pstat ) );
+		current = prev->next;
 	}
 	return ( current );
 }

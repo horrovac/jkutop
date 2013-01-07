@@ -22,11 +22,11 @@ int compare_elements ( const void *first, const void *second )
 	}
 	return ( retval );
 	*/
-	if ( one->pid > two->pid )
+	if ( one->utime + one->stime > two->utime + two->stime )
 	{
 		retval = -1;
 	}
-	else if ( one->pid < two->pid )
+	else if ( one->utime + one->stime < two->utime + two->stime )
 	{
 		retval = 1;
 	}

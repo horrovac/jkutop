@@ -13,17 +13,18 @@ typedef struct pidstat
 	int				euid;
 	int				pid;
 	int				ppid;
-	unsigned long	utime;
-	unsigned long	stime;
-	unsigned long	cutime;
-	unsigned long	cstime;
+	unsigned long long	utime;
+	unsigned long long	stime;
+	unsigned long long	utime_lastpass;
+	unsigned long long	stime_lastpass;
+	unsigned long long	cutime;
+	unsigned long long	cstime;
 	long			priority;
 	long			niceness;
 	unsigned long	virt;
 	long			res;
 	int				swap[KEEPRECORDS];
 	int				swapchange;
-	struct timeval	tp;
 	int				sequence; /* used to recognise old entries for removal */
 	struct pidstat	*next;
 }pstat, *ppstat;
