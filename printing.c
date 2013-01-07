@@ -10,7 +10,7 @@ int print_it ( ppstat *stats_array, int count )
 	int i;
 	int c;
 	long miliseconds;
-	extern float ticks_passed;
+	extern double ticks_passed;
 	int ms, sec, min;
 	struct passwd *pwentry;
 	float temp;
@@ -26,7 +26,7 @@ int print_it ( ppstat *stats_array, int count )
 		{
 			pwentry = getpwuid ( stats_array[i]->uid );
 			pwentry->pw_name[8] = '\0';
-			printf ( "%6d %8s ", stats_array[i]->pid, pwentry->pw_name );
+			printf ( "%7d %8s ", stats_array[i]->pid, pwentry->pw_name );
 			if ( stats_array[i]->priority < 0 )
 			{
 				printf ( "rt %3ld ", stats_array[i]->niceness );
@@ -61,10 +61,10 @@ int print_it ( ppstat *stats_array, int count )
 			{
 				printf ( "%4lu ", (long unsigned) temp );
 			}
-			//printf ( ">>%8Lu %8Lu %8Lu %8Lu %8Lu<< ", stats_array[i]->utime, stats_array[i]->stime, stats_array[i]->utime_lastpass, stats_array[i]->stime_lastpass, ticks_passed );
+			printf ( ">>%8Lu %8Lu %8Lu %8Lu %8Lu<< ", stats_array[i]->utime, stats_array[i]->stime, stats_array[i]->utime_lastpass, stats_array[i]->stime_lastpass, ticks_passed );
 			if ( ticks_passed > 0 )
 			{
-				printf ( "%2.1f ", ( ( ( stats_array[i]->utime + stats_array[i]->stime ) - (stats_array[i]->utime_lastpass + stats_array[i]->stime_lastpass) ) / ticks_passed ) * 100 );
+				printf ( "%6.1f ", ( ( ( stats_array[i]->utime + stats_array[i]->stime ) - (stats_array[i]->utime_lastpass + stats_array[i]->stime_lastpass) ) / ticks_passed ) * 100 );
 			}
 			else
 			{

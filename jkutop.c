@@ -9,8 +9,11 @@
 #include <asm/param.h>		/* neded for HZ definition */
 #include "def.h"
 
+#define DEBUG_BUILDING 1
+#define DEBUG_CLEANUP 1
+
 const char *blacklist[] = { "ksoftirqd/", "migration/", "events/", "kintegrityd/", "kblockd/", "kstop/", "kondemand/", "kswapd", "aio/", "crypto/", "ata/", "xfslogd/", "xfsdatad/", "xfsconvertd/", "rpciod/", "kworker", NULL };
-float	ticks_passed;
+double	ticks_passed;
 ppstat stats[HASH_TABLE_SIZE];
 ppstat *stats_array = NULL;
 
@@ -22,9 +25,18 @@ int clean_up ( int sequence )
 	int c = 0;
 	for ( i = 0; i < HASH_TABLE_SIZE; i++ )
 	{
+#ifdef DEBUG_CLEANUP
+		//fprintf ( stderr, "%d:\n\t", i );
+#endif
 		current = stats[i];
 		while ( current != NULL )
 		{
+#ifdef DEBUG_CLEANUP
+			if ( i != current->pid % 1000 )
+			{
+				fprintf ( stderr, "[%d] %d (%d)\n, ", i, current->pid, current->pid % 1000 );
+			}
+#endif
 			if ( current->sequence != sequence )
 			{
 				if ( current == stats[i] )
@@ -47,7 +59,11 @@ int clean_up ( int sequence )
 				current = current->next;
 			}
 		}
+#ifdef DEBUG_CLEANUP
+		//fprintf ( stderr, "\n" );
+#endif
 	}
+	fprintf ( stderr, "\n" );
 	return c;
 }
 
@@ -130,7 +146,18 @@ int main ( void )
 			{
 				if ( ( chars_read = read ( fd, buffer, BUFFSIZE ) ) < 0 )
 				{
+					/*
+					this kind of thing happens regularly on a system as
+					ridiculously big as Altix UV. By the time we come around to
+					reading the 'stat' file, the process is already gone. To
+					fix this one would need to constantly update the contents
+					of the /proc directory while parsing through it. I have no
+					idea how one could do this. Plus it would probably slow the
+					whole thing down. So I'll just ignore this silently and
+					move on to the next iteration.
+					*/
 					fprintf ( stderr, "Can't read file %s\n", path );
+					perror ( NULL );
 					close ( fd );
 					continue;
 				}
@@ -157,6 +184,16 @@ int main ( void )
 					*/
 					stats_buffer->utime_lastpass = current->utime;
 					stats_buffer->stime_lastpass = current->stime;
+					/*
+					if ( ticks_passed > 0 )
+					{
+						stats_buffer->cpu_percent = (((stats_buffer->utime + stats_buffer->stime ) - (stats_buffer->utime_lastpass + stats_buffer->stime_lastpass )) / ticks_passed ) * 100;
+					}
+					else
+					{
+						stats_buffer->cpu_percent = 0;
+					}
+					*/
 					stats_buffer->state = state[0];
 					stats_buffer->sequence = sequence;
 					stats_buffer->next = current->next;

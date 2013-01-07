@@ -7,26 +7,26 @@
 
 typedef struct pidstat
 {
-	char			name[256];
-	char			state;
-	int				uid;
-	int				euid;
-	int				pid;
-	int				ppid;
+	char				name[256];
+	char				state;
+	int					uid;
+	int					euid;
+	int					pid;
+	int					ppid;
 	unsigned long long	utime;
 	unsigned long long	stime;
 	unsigned long long	utime_lastpass;
 	unsigned long long	stime_lastpass;
 	unsigned long long	cutime;
 	unsigned long long	cstime;
-	long			priority;
-	long			niceness;
-	unsigned long	virt;
-	long			res;
-	int				swap[KEEPRECORDS];
-	int				swapchange;
-	int				sequence; /* used to recognise old entries for removal */
-	struct pidstat	*next;
+	long				priority;
+	long				niceness;
+	unsigned long		virt;
+	long				res;
+	int					swap[KEEPRECORDS];
+	int					swapchange;
+	int					sequence; /* used to recognise old entries for removal */
+	struct pidstat		*next;
 }pstat, *ppstat;
 
 int compare_elements ( const void *first, const void *second );
