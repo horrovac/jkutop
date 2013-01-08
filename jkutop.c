@@ -19,8 +19,8 @@ ppstat *stats_array = NULL;
 
 int clean_up ( int sequence )
 {
-	ppstat current;
-	ppstat prev;
+	ppstat current = NULL;
+	ppstat prev = NULL;
 	int i;
 	int c = 0;
 	for ( i = 0; i < HASH_TABLE_SIZE; i++ )
@@ -250,7 +250,7 @@ int main ( void )
 	
 		qsort ( stats_array, c, sizeof ( pstat * ), compare_elements );
 
-		print_it ( stats_array, c );
+		//print_it ( stats_array, c );
 
 		sequence++;
 		//break;
@@ -303,6 +303,7 @@ ppstat get_record ( int pid )
 		}
 		prev->next = malloc ( sizeof ( pstat ) );
 		current = prev->next;
+		current->next = NULL;
 	}
 	return ( current );
 }
