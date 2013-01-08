@@ -16,6 +16,7 @@ const char *blacklist[] = { "ksoftirqd/", "migration/", "events/", "kintegrityd/
 double	ticks_passed;
 ppstat stats[HASH_TABLE_SIZE];
 ppstat *stats_array = NULL;
+pmstat memory;
 
 int main ( void )
 {
@@ -39,6 +40,8 @@ int main ( void )
 	initscr(); /* ncurses initialisation */
 
 	stats_array = malloc ( allocated * sizeof ( ppstat ) );
+	memory = malloc ( sizeof ( mstat ) );
+	memset ( memory, '\0', sizeof ( mstat ) );
 
 	/*
 	store stats here temporarily. This is for blacklisting, if the records
@@ -69,6 +72,9 @@ int main ( void )
 				ticks_passed = ( ticks - ticks_before ) / sysconf ( _SC_NPROCESSORS_ONLN );
 			}
 		}
+
+		/* read the memory info */
+		read_meminfo ( memory );
 		rewinddir ( dirp );
 		c = 0;
 		while ( ( dir_entry = readdir ( dirp ) ) != NULL ) 
@@ -201,9 +207,16 @@ int main ( void )
 
 		print_it ( stats_array, c );
 
-		sequence++;
 		//break;
-		sleep ( 1 );
+		if ( sequence > 0 )
+		{
+			sleep ( 3 );
+		}
+		else
+		{
+			usleep ( 400 );
+		}
+		sequence++;
 	}
 	endwin ();
 	return ( 0 );

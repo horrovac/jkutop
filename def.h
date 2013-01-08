@@ -31,10 +31,21 @@ typedef struct pidstat
 	struct pidstat		*next;
 }pstat, *ppstat;
 
+typedef struct meminfo
+{
+	int	memtotal;
+	int	memfree;
+	int buffers;
+	int cached;
+	int swaptotal;
+	int swapfree;
+}mstat, *pmstat;
+
 int compare_elements ( const void *first, const void *second );
 int process_filter ( const char *execname );
 int read_status ( pstat *stats, char *pid );
 int sort_entries ( void );
 int print_it ( ppstat *stats_array, int count );
 int clean_up ( int sequence );
+int read_meminfo ( mstat *meminfo );
 ppstat get_record (	int pid );

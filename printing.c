@@ -15,12 +15,20 @@ int print_it ( ppstat *stats_array, int count )
 	struct passwd *pwentry;
 	float temp;
 	char suffixes[] = " kmgt";
+	extern pmstat memory;
 
 	getmaxyx(stdscr,row,col);
 
+	mvprintw ( 1, 0, "KiB Mem:%10d total, %10d used, %10d free, %10d buffers", memory->memtotal, memory->memtotal - memory->memfree, memory->memfree, memory->buffers );
+	mvprintw ( 2, 0, "KiB Swap:%9d total, %10d used, %10d free, %10d cached", memory->swaptotal, memory->swaptotal - memory->swapfree, memory->swapfree, memory->cached );
 	mvprintw ( 3, 0, "JKUtop - horrovac invenit et fecit" );
 	attron ( A_REVERSE );
-	mvprintw ( 4, 0, "%7s %-8s %2s %3s %5s %4s %1s %6s %9s %-s\n", "PID", "USER", "PR", "NI", "VIRT", "RES", "S", "%CPU", "TIME+", "COMMAND                 " );
+	mvprintw ( 4, 0, "%7s %-8s %2s %3s %5s %4s %1s %6s %4s %9s %-s", "PID", "USER", "PR", "NI", "VIRT", "RES", "S", "%CPU", "%MEM", "TIME+", "COMMAND" );
+	for ( i = 67; i < col; i++ )
+	{
+		printw ( " " );
+	}
+	printw ( "\n" );
 	attroff ( A_REVERSE );
 
 	//c = 0;
@@ -80,6 +88,7 @@ int print_it ( ppstat *stats_array, int count )
 			*/
 			printw ( "%c ", stats_array[i]->state );
 			printw ( "%6.1f ", stats_array[i]->cpu_percent );
+			printw ( "%4.1f ", ( (float) stats_array[i]->res * getpagesize() * .1024 ) / memory->memtotal );
 			/*
 			calculate values for time display
 			*/
