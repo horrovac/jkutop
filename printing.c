@@ -38,6 +38,14 @@ int print_it ( ppstat *stats_array, int count )
 		if ( current->swap[0] )
 		*/
 		{
+			if ( stats_array[i]->state == 'R' )
+			{
+			attron ( A_BOLD );
+			}
+			else
+			{
+				attroff ( A_BOLD );
+			}
 			pwentry = getpwuid ( stats_array[i]->uid );
 			pwentry->pw_name[8] = '\0';
 			printw ( "%7d %8s ", stats_array[i]->pid, pwentry->pw_name );
