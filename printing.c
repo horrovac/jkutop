@@ -9,13 +9,19 @@ int print_it ( ppstat *stats_array, int count )
 {
 	int i;
 	int c;
+	int row, col;
 	long miliseconds;
-	extern double ticks_passed;
 	int ms, sec, min;
 	struct passwd *pwentry;
 	float temp;
 	char suffixes[] = " kmgt";
-	printf ( "\033[7m%7s %-8s %2s %3s %5s %4s %1s %9s %-s\033[0m\n", "PID", "USER", "PR", "NI", "VIRT", "RES", "S", "TIME+", "COMMAND                 " );
+
+	getmaxyx(stdscr,row,col);
+
+	mvprintw ( 3, 0, "JKUtop - horrovac invenit et fecit" );
+	attron ( A_REVERSE );
+	mvprintw ( 4, 0, "%7s %-8s %2s %3s %5s %4s %1s %6s %9s %-s\n", "PID", "USER", "PR", "NI", "VIRT", "RES", "S", "%CPU", "TIME+", "COMMAND                 " );
+	attroff ( A_REVERSE );
 
 	//c = 0;
 	for ( i = 0; i < count; i++ )
@@ -26,14 +32,14 @@ int print_it ( ppstat *stats_array, int count )
 		{
 			pwentry = getpwuid ( stats_array[i]->uid );
 			pwentry->pw_name[8] = '\0';
-			printf ( "%7d %8s ", stats_array[i]->pid, pwentry->pw_name );
+			printw ( "%7d %8s ", stats_array[i]->pid, pwentry->pw_name );
 			if ( stats_array[i]->priority < 0 )
 			{
-				printf ( "rt %3ld ", stats_array[i]->niceness );
+				printw ( "rt %3ld ", stats_array[i]->niceness );
 			}
 			else
 			{
-				printf ( "%2ld %3ld ", stats_array[i]->priority, stats_array[i]->niceness );
+				printw ( "%2ld %3ld ", stats_array[i]->priority, stats_array[i]->niceness );
 			}
 			temp = stats_array[i]->virt;
 			for ( c = 0; temp > 10000; c++ )
@@ -42,11 +48,11 @@ int print_it ( ppstat *stats_array, int count )
 			}
 			if ( c > 1 )
 			{
-				printf ( "%4ld%c ", (long) temp, suffixes[c] );
+				printw ( "%4ld%c ", (long) temp, suffixes[c] );
 			}
 			else
 			{
-				printf ( "%5ld ", (long) temp );
+				printw ( "%5ld ", (long) temp );
 			}
 			temp = stats_array[i]->res * getpagesize();
 			for ( c = 0; temp > 1000; c++ )
@@ -55,25 +61,25 @@ int print_it ( ppstat *stats_array, int count )
 			}
 			if ( c > 1 )
 			{
-				printf ( "%3lu%c ", (long unsigned) temp, suffixes[c] );
+				printw ( "%3lu%c ", (long unsigned) temp, suffixes[c] );
 			}
 			else
 			{
-				printf ( "%4lu ", (long unsigned) temp );
+				printw ( "%4lu ", (long unsigned) temp );
 			}
 			/*
-			printf ( ">>%8Lu %8Lu %8Lu %8Lu %8f<< ", stats_array[i]->utime, stats_array[i]->stime, stats_array[i]->utime_lastpass, stats_array[i]->stime_lastpass, ticks_passed );
+			printw ( ">>%8Lu %8Lu %8Lu %8Lu %8f<< ", stats_array[i]->utime, stats_array[i]->stime, stats_array[i]->utime_lastpass, stats_array[i]->stime_lastpass, ticks_passed );
 			if ( ticks_passed > 0 )
 			{
-				printf ( "%6.1f ", ( ( ( stats_array[i]->utime + stats_array[i]->stime ) - (stats_array[i]->utime_lastpass + stats_array[i]->stime_lastpass) ) / ticks_passed ) * 100 );
+				printw ( "%6.1f ", ( ( ( stats_array[i]->utime + stats_array[i]->stime ) - (stats_array[i]->utime_lastpass + stats_array[i]->stime_lastpass) ) / ticks_passed ) * 100 );
 			}
 			else
 			{
-				printf ( "%2d ", 0 );
+				printw ( "%2d ", 0 );
 			}
-			printf ( "%c ", stats_array[i]->state );
 			*/
-			printf ( "%6.1f ", stats_array[i]->cpu_percent );
+			printw ( "%c ", stats_array[i]->state );
+			printw ( "%6.1f ", stats_array[i]->cpu_percent );
 			/*
 			calculate values for time display
 			*/
@@ -85,29 +91,30 @@ int print_it ( ppstat *stats_array, int count )
 
 			if ( min >= 1000 )
 			{
-				printf ( "%6d:%02d ", min, sec );
+				printw ( "%6d:%02d ", min, sec );
 			}
 			else
 			{
-				printf ( "%3d:%02d.%02d ", min, sec, ms );
+				printw ( "%3d:%02d.%02d ", min, sec, ms );
 			}
 			/*
 			reset for the next round
 			*/
 			min = 0;
 
-			printf ( "%-20s\n", stats_array[i]->name );
-			//printf ( "%c %10lu %-20s\n", stats_array[i]->state, ( stats_array[i]->utime + stats_array[i]->stime + stats_array[i]->cutime + stats_array[i]->cstime ) / sysconf ( _SC_CLK_TCK ), stats_array[i]->name );
+			printw ( "%-20s\n", stats_array[i]->name );
+			//printw ( "%c %10lu %-20s\n", stats_array[i]->state, ( stats_array[i]->utime + stats_array[i]->stime + stats_array[i]->cutime + stats_array[i]->cstime ) / sysconf ( _SC_CLK_TCK ), stats_array[i]->name );
 
-			//printf ( "%-15s %8d %8d %10d %10.2f %10.2f %5c\n", stats_array[i]->name, stats_array[i]->swap[0], stats_array[i]->pid, stats_array[i]->ppid, (float) stats_array[i]->user / HZ, (float) stats_array[i]->kernel / HZ, stats_array[i]->state );
-			//printf ( "%-15s %8d %8d %8d %8d %8d %8d\n", current->name, current->swap[0], current->swap[1], current->swap[2], current->swap[3], current->swap[4], current->swapchange );
+			//printw ( "%-15s %8d %8d %10d %10.2f %10.2f %5c\n", stats_array[i]->name, stats_array[i]->swap[0], stats_array[i]->pid, stats_array[i]->ppid, (float) stats_array[i]->user / HZ, (float) stats_array[i]->kernel / HZ, stats_array[i]->state );
+			//printw ( "%-15s %8d %8d %8d %8d %8d %8d\n", current->name, current->swap[0], current->swap[1], current->swap[2], current->swap[3], current->swap[4], current->swapchange );
 		}
 		/* limit output to 40 rows */
-		if ( i > 39 )
+		if ( i + 7 >= row )
 		{
 			break;
 		}
 	}
-	printf ( "%d records, %d\n", count, (int) time( NULL ) );
+	printw ( "%d records, %d\n", count, (int) time( NULL ) );
+	refresh();
 	return ( i + 1 );
 }

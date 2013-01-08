@@ -17,58 +17,6 @@ double	ticks_passed;
 ppstat stats[HASH_TABLE_SIZE];
 ppstat *stats_array = NULL;
 
-int clean_up ( int sequence )
-{
-	ppstat current = NULL;
-	ppstat prev = NULL;
-	int i;
-	int c = 0;
-	for ( i = 0; i < HASH_TABLE_SIZE; i++ )
-	{
-#ifdef DEBUG_CLEANUP
-		fprintf ( stderr, "%d:\n\t", i );
-#endif
-		current = stats[i];
-		while ( current != NULL )
-		{
-#ifdef DEBUG_CLEANUP
-			if ( i != current->pid % 1000 )
-			{
-				fprintf ( stderr, "[%d] %d (%d)\n, ", i, current->pid, current->pid % 1000 );
-			}
-#endif
-			if ( current->sequence != sequence )
-			{
-				if ( current == stats[i] )
-				{
-					stats[i] = current->next;
-					free ( current );
-					current = stats[i];
-				}
-				else
-				{
-					prev->next = current->next;
-					free ( current );
-					current = prev->next;
-				}
-				c++;
-			}
-			else
-			{
-				prev = current;
-				current = current->next;
-			}
-		}
-#ifdef DEBUG_CLEANUP
-		fprintf ( stderr, "\n" );
-#endif
-	}
-	return c;
-}
-
-
-
-
 int main ( void )
 {
 	DIR				*dirp;
@@ -87,6 +35,8 @@ int main ( void )
 	pstat			*current = NULL;
 	//pstat			*temp = NULL;
 	pstat			*stats_buffer;
+
+	initscr(); /* ncurses initialisation */
 
 	stats_array = malloc ( allocated * sizeof ( ppstat ) );
 
@@ -255,6 +205,7 @@ int main ( void )
 		//break;
 		sleep ( 1 );
 	}
+	endwin ();
 	return ( 0 );
 }
 
@@ -307,4 +258,53 @@ ppstat get_record ( int pid )
 		current->next = NULL;
 	}
 	return ( current );
+}
+
+int clean_up ( int sequence )
+{
+	ppstat current = NULL;
+	ppstat prev = NULL;
+	int i;
+	int c = 0;
+	for ( i = 0; i < HASH_TABLE_SIZE; i++ )
+	{
+#ifdef DEBUG_CLEANUP
+		fprintf ( stderr, "%d:\n\t", i );
+#endif
+		current = stats[i];
+		while ( current != NULL )
+		{
+#ifdef DEBUG_CLEANUP
+			if ( i != current->pid % 1000 )
+			{
+				fprintf ( stderr, "[%d] %d (%d)\n, ", i, current->pid, current->pid % 1000 );
+			}
+#endif
+			if ( current->sequence != sequence )
+			{
+				if ( current == stats[i] )
+				{
+					stats[i] = current->next;
+					free ( current );
+					current = stats[i];
+				}
+				else
+				{
+					prev->next = current->next;
+					free ( current );
+					current = prev->next;
+				}
+				c++;
+			}
+			else
+			{
+				prev = current;
+				current = current->next;
+			}
+		}
+#ifdef DEBUG_CLEANUP
+		fprintf ( stderr, "\n" );
+#endif
+	}
+	return c;
 }

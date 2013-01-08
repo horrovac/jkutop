@@ -1,4 +1,5 @@
 #include <sys/time.h>
+#include <ncurses.h>
 
 #define KEEPRECORDS 5
 #define BUFFSIZE 1024
@@ -35,4 +36,5 @@ int process_filter ( const char *execname );
 int read_status ( pstat *stats, char *pid );
 int sort_entries ( void );
 int print_it ( ppstat *stats_array, int count );
+int clean_up ( int sequence );
 ppstat get_record (	int pid );

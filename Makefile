@@ -1,7 +1,7 @@
 FLAGS = -g -Wall
 
 jkutop: jkutop.o readstatus.o sorting.o printing.o
-	${CC} ${FLAGS} -o jkutop jkutop.o readstatus.o sorting.o printing.o
+	${CC} ${FLAGS} -lncurses -o jkutop jkutop.o readstatus.o sorting.o printing.o
 
 jkutop.o: def.h jkutop.c
 	${CC} ${FLAGS} -c jkutop.c -o jkutop.o
