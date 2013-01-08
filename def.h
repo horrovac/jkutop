@@ -19,6 +19,7 @@ typedef struct pidstat
 	unsigned long long	stime_lastpass;
 	unsigned long long	cutime;
 	unsigned long long	cstime;
+	double				cpu_percent;
 	long				priority;
 	long				niceness;
 	unsigned long		virt;

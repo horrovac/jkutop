@@ -22,11 +22,21 @@ int compare_elements ( const void *first, const void *second )
 	}
 	return ( retval );
 	*/
+	/*
 	if ( one->utime + one->stime > two->utime + two->stime )
 	{
 		retval = -1;
 	}
 	else if ( one->utime + one->stime < two->utime + two->stime )
+	{
+		retval = 1;
+	}
+	*/
+	if ( one->cpu_percent > two->cpu_percent )
+	{
+		retval = -1;
+	}
+	else if ( one->cpu_percent < two->cpu_percent )
 	{
 		retval = 1;
 	}

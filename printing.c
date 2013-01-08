@@ -61,7 +61,8 @@ int print_it ( ppstat *stats_array, int count )
 			{
 				printf ( "%4lu ", (long unsigned) temp );
 			}
-			printf ( ">>%8Lu %8Lu %8Lu %8Lu %8Lu<< ", stats_array[i]->utime, stats_array[i]->stime, stats_array[i]->utime_lastpass, stats_array[i]->stime_lastpass, ticks_passed );
+			/*
+			printf ( ">>%8Lu %8Lu %8Lu %8Lu %8f<< ", stats_array[i]->utime, stats_array[i]->stime, stats_array[i]->utime_lastpass, stats_array[i]->stime_lastpass, ticks_passed );
 			if ( ticks_passed > 0 )
 			{
 				printf ( "%6.1f ", ( ( ( stats_array[i]->utime + stats_array[i]->stime ) - (stats_array[i]->utime_lastpass + stats_array[i]->stime_lastpass) ) / ticks_passed ) * 100 );
@@ -71,6 +72,8 @@ int print_it ( ppstat *stats_array, int count )
 				printf ( "%2d ", 0 );
 			}
 			printf ( "%c ", stats_array[i]->state );
+			*/
+			printf ( "%6.1f ", stats_array[i]->cpu_percent );
 			/*
 			calculate values for time display
 			*/

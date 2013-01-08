@@ -10,7 +10,7 @@
 #include "def.h"
 
 #define DEBUG_BUILDING 1
-#define DEBUG_CLEANUP 1
+#undef DEBUG_CLEANUP
 
 const char *blacklist[] = { "ksoftirqd/", "migration/", "events/", "kintegrityd/", "kblockd/", "kstop/", "kondemand/", "kswapd", "aio/", "crypto/", "ata/", "xfslogd/", "xfsdatad/", "xfsconvertd/", "rpciod/", "kworker", NULL };
 double	ticks_passed;
@@ -26,7 +26,7 @@ int clean_up ( int sequence )
 	for ( i = 0; i < HASH_TABLE_SIZE; i++ )
 	{
 #ifdef DEBUG_CLEANUP
-		//fprintf ( stderr, "%d:\n\t", i );
+		fprintf ( stderr, "%d:\n\t", i );
 #endif
 		current = stats[i];
 		while ( current != NULL )
@@ -60,10 +60,9 @@ int clean_up ( int sequence )
 			}
 		}
 #ifdef DEBUG_CLEANUP
-		//fprintf ( stderr, "\n" );
+		fprintf ( stderr, "\n" );
 #endif
 	}
-	fprintf ( stderr, "\n" );
 	return c;
 }
 
@@ -155,9 +154,9 @@ int main ( void )
 					idea how one could do this. Plus it would probably slow the
 					whole thing down. So I'll just ignore this silently and
 					move on to the next iteration.
-					*/
 					fprintf ( stderr, "Can't read file %s\n", path );
 					perror ( NULL );
+					*/
 					close ( fd );
 					continue;
 				}
@@ -184,11 +183,11 @@ int main ( void )
 					*/
 					stats_buffer->utime_lastpass = current->utime;
 					stats_buffer->stime_lastpass = current->stime;
-					/*
 					if ( ticks_passed > 0 )
 					{
 						stats_buffer->cpu_percent = (((stats_buffer->utime + stats_buffer->stime ) - (stats_buffer->utime_lastpass + stats_buffer->stime_lastpass )) / ticks_passed ) * 100;
 					}
+					/*
 					else
 					{
 						stats_buffer->cpu_percent = 0;
@@ -250,7 +249,7 @@ int main ( void )
 	
 		qsort ( stats_array, c, sizeof ( pstat * ), compare_elements );
 
-		//print_it ( stats_array, c );
+		print_it ( stats_array, c );
 
 		sequence++;
 		//break;
@@ -285,7 +284,8 @@ ppstat get_record ( int pid )
 	if ( stats[key] == NULL )
 	{
 		stats[key] = malloc ( sizeof ( pstat ) );
-		memset ( stats[key]->swap, 0, sizeof ( int ) * 5 );
+		//memset ( stats[key]->swap, 0, sizeof ( int ) * 5 );
+		memset ( stats[key], '\0', sizeof ( pstat ) );
 		stats[key]->next = NULL;
 		return stats[key];
 	}
@@ -303,6 +303,7 @@ ppstat get_record ( int pid )
 		}
 		prev->next = malloc ( sizeof ( pstat ) );
 		current = prev->next;
+		memset ( current, '\0', sizeof ( pstat ) );
 		current->next = NULL;
 	}
 	return ( current );
