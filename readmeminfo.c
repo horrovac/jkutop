@@ -29,27 +29,27 @@ int read_meminfo ( mstat *meminfo )
 			eolp++;
 			if ( ! strncmp ( bolp, "MemTotal:", 9 ) )
 			{
-				sscanf ( bolp, "MemTotal:        %d kB", &meminfo->memtotal );
+				sscanf ( bolp, "MemTotal:        %lu kB", &meminfo->memtotal );
 			}
 			if ( ! strncmp ( bolp, "MemFree:", 8 ) )
 			{
-				sscanf ( bolp, "MemFree:        %d kB", &meminfo->memfree );
+				sscanf ( bolp, "MemFree:        %lu kB", &meminfo->memfree );
 			}
 			if ( ! strncmp ( bolp, "Buffers:", 8 ) )
 			{
-				sscanf ( bolp, "Buffers:        %d kB", &meminfo->buffers );
+				sscanf ( bolp, "Buffers:        %lu kB", &meminfo->buffers );
 			}
 			if ( ! strncmp ( bolp, "Cached:", 7 ) )
 			{
-				sscanf ( bolp, "Cached:        %d kB", &meminfo->cached );
+				sscanf ( bolp, "Cached:        %lu kB", &meminfo->cached );
 			}
 			if ( ! strncmp ( bolp, "SwapTotal:", 10 ) )
 			{
-				sscanf ( bolp, "SwapTotal:        %d kB", &meminfo->swaptotal );
+				sscanf ( bolp, "SwapTotal:        %lu kB", &meminfo->swaptotal );
 			}
 			if ( ! strncmp ( bolp, "SwapFree:", 9 ) )
 			{
-				sscanf ( bolp, "SwapFree:        %d kB", &meminfo->swapfree );
+				sscanf ( bolp, "SwapFree:        %lu kB", &meminfo->swapfree );
 				break;
 			}
 			bolp = eolp;
@@ -61,9 +61,6 @@ int read_meminfo ( mstat *meminfo )
 		memmove ( buffer, bolp, restsize );
 	}
 	while ( read_chars > 0 );
-	/*
-	fprintf ( stderr, "total swap: %d\n", swap );
-	*/
 
 	close ( fd );
 	return ( 0 );

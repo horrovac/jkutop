@@ -19,8 +19,8 @@ int print_it ( ppstat *stats_array, int count )
 
 	getmaxyx(stdscr,row,col);
 
-	mvprintw ( 1, 0, "KiB Mem:%10d total, %10d used, %10d free, %10d buffers", memory->memtotal, memory->memtotal - memory->memfree, memory->memfree, memory->buffers );
-	mvprintw ( 2, 0, "KiB Swap:%9d total, %10d used, %10d free, %10d cached", memory->swaptotal, memory->swaptotal - memory->swapfree, memory->swapfree, memory->cached );
+	mvprintw ( 1, 0, "KiB Mem:%10lu total, %10lu used, %10lu free, %10lu buffers", memory->memtotal, memory->memtotal - memory->memfree, memory->memfree, memory->buffers );
+	mvprintw ( 2, 0, "KiB Swap:%9d total, %10lu used, %10lu free, %10lu cached", memory->swaptotal, memory->swaptotal - memory->swapfree, memory->swapfree, memory->cached );
 	mvprintw ( 3, 0, "JKUtop - horrovac invenit et fecit" );
 	attron ( A_REVERSE );
 	mvprintw ( 4, 0, "%7s %-8s %2s %3s %5s %4s %1s %6s %4s %9s %-s", "PID", "USER", "PR", "NI", "VIRT", "RES", "S", "%CPU", "%MEM", "TIME+", "COMMAND" );

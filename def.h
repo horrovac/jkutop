@@ -33,12 +33,12 @@ typedef struct pidstat
 
 typedef struct meminfo
 {
-	int	memtotal;
-	int	memfree;
-	int buffers;
-	int cached;
-	int swaptotal;
-	int swapfree;
+	unsigned long	memtotal;
+	unsigned long	memfree;
+	unsigned long	buffers;
+	unsigned long	cached;
+	unsigned long	swaptotal;
+	unsigned long	swapfree;
 }mstat, *pmstat;
 
 int compare_elements ( const void *first, const void *second );
