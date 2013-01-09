@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <asm/param.h>		/* neded for HZ definition */
+#include <signal.h>
 #include "def.h"
 
 #define DEBUG_BUILDING 1
@@ -36,6 +37,17 @@ int main ( void )
 	pstat			*current = NULL;
 	//pstat			*temp = NULL;
 	pstat			*stats_buffer;
+
+	/* signal handling stuff */
+	struct sigaction	act;
+	sigset_t			sigset;
+	int					signal;
+	void dummy ( int useless ){};
+	act.sa_handler = dummy;
+	act.sa_flags = 0;
+	sigaction ( 14, &act, NULL );
+	sigemptyset ( &sigset );
+	sigaddset ( &sigset, SIGALRM );
 
 	initscr(); /* ncurses initialisation */
 
@@ -172,35 +184,7 @@ int main ( void )
 		next_iteration: ; /* gcc requires a statement after label, thus ; */
 		}
 
-		/*
-		remove entries from exited jobs (recognisable by an old
-		sequence number)
-		for ( i = 0; i < HASH_TABLE_SIZE; i++ )
-		{
-			temp = NULL;
-			current = stats[i];
-			while ( current != NULL )
-			{
-				temp = current->next;
-				if ( current->sequence != sequence )
-				{
-					if ( current == stats[i] )
-					{
-						stats[i] = temp;
-					}
-					free ( current );
-					prev = temp;
-					current = temp;
-				}
-				else
-				{
-					prev = current;
-					current = current->next;
-				}
-			}
-		}
-		*/
-
+		/* this removes old entries */
 		clean_up ( sequence );
 	
 		qsort ( stats_array, c, sizeof ( pstat * ), compare_elements );
@@ -210,7 +194,8 @@ int main ( void )
 		//break;
 		if ( sequence > 0 )
 		{
-			sleep ( 3 );
+			alarm ( 3 );
+			sigwait ( &sigset, &signal );
 		}
 		else
 		{
