@@ -15,7 +15,7 @@ readmeminfo.o: def.h readmeminfo.c
 sorting.o: def.h sorting.c
 	${CC} ${FLAGS} -c sorting.c -o sorting.o
 
-printing.o: def.h printing.c
+printing.o: def.h printing.c printing.h
 	${CC} ${FLAGS} -c printing.c -o printing.o
 
 clean:
