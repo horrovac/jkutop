@@ -66,3 +66,6 @@ int print_it ( ppstat *stats_array, int count );
 int clean_up ( int sequence );
 int read_meminfo ( mstat *meminfo );
 ppstat get_record (	int pid );
+
+WINDOW *win;
+int row, col;

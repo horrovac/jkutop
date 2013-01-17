@@ -22,17 +22,29 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 
 int print_it ( ppstat *stats_array, int count )
 {
-	int i;
-	int row, col;
+	int i, j;
 	extern pmstat memory;
 
-	getmaxyx(stdscr,row,col);
+	refresh();
+	getmaxyx(win,row,col);
 
 	mvprintw ( 1, 0, "KiB Mem:%10lu total, %10lu used, %10lu free, %10lu buffers", memory->memtotal, memory->memtotal - memory->memfree, memory->memfree, memory->buffers );
 	mvprintw ( 2, 0, "KiB Swap:%9d total, %10lu used, %10lu free, %10lu cached", memory->swaptotal, memory->swaptotal - memory->swapfree, memory->swapfree, memory->cached );
 	mvprintw ( 3, 0, "JKUtop - horrovac invenit et fecit" );
 	attron ( A_REVERSE );
+	/*
+	print the header
 	mvprintw ( 4, 0, "%7s %-8s %2s %3s %5s %4s %1s %6s %4s %9s %-s", "PID", "USER", "PR", "NI", "VIRT", "RES", "S", "%CPU", "%MEM", "TIME+", "COMMAND" );
+	*/
+	move ( 4, 0 );
+	for ( j = 0; j < 20; j++ )
+	{
+		if ( fields[j].active == 0 )
+		{
+			break;
+		}
+		printw ( fields[j].format, fields[j].fieldname );
+	}
 	for ( i = 67; i < col; i++ )
 	{
 		printw ( " " );
@@ -46,6 +58,7 @@ int print_it ( ppstat *stats_array, int count )
 		/*
 		if ( current->swap[0] )
 		*/
+		move ( i + 5, 0 );
 		{
 			if ( stats_array[i]->state == 'R' )
 			{
@@ -55,6 +68,15 @@ int print_it ( ppstat *stats_array, int count )
 			{
 				attroff ( A_BOLD );
 			}
+			for ( j = 0; j < 20; j++ )
+			{
+				if ( fields[j].active == 0 )
+				{
+					break;
+				}
+				fields[j].printout( stats_array[i] );
+			}
+			/*
 			print_pid ( stats_array[i] );
 			print_user ( stats_array[i] );
 			print_priority ( stats_array[i] );
@@ -66,6 +88,7 @@ int print_it ( ppstat *stats_array, int count )
 			print_mem_percent ( stats_array[i] );
 			print_time ( stats_array[i] );
 			print_name ( stats_array[i] );
+			*/
 			printw ( "\n" );
 
 			//printw ( "%c %10lu %-20s\n", stats_array[i]->state, ( stats_array[i]->utime + stats_array[i]->stime + stats_array[i]->cutime + stats_array[i]->cstime ) / sysconf ( _SC_CLK_TCK ), stats_array[i]->name );
