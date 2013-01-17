@@ -22,10 +22,8 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 #include "def.h"
 
-#define BUFFSIZE 1024
 
-
-int read_status ( pstat *stats, char *pid )
+int read_smaps ( pstat *stats, char *pid )
 {
 	char buffer[BUFFSIZE];
 	char path[256];
@@ -33,7 +31,8 @@ int read_status ( pstat *stats, char *pid )
 	char *bolp=NULL;
 	ssize_t read_chars=0;
 	int fd;
-	int swap=0;
+	int i;
+	int swap=0, s=0;
 	int restsize = 0;
 
 	/*
@@ -42,16 +41,13 @@ int read_status ( pstat *stats, char *pid )
 	memset ( path, '\0', sizeof ( path ) );
 	strcat ( path, "/proc/" );
 	strcat ( path, pid );
-	strcat ( path, "/status" );
+	strcat ( path, "/smaps" );
 	fd = open ( path, O_RDONLY );
 
-	/*
-	functionality moved to read_smaps()
 	for ( i = KEEPRECORDS - 1; i > 0; i-- )
 	{
 		stats->swap[i] = stats->swap[i-1];
 	}
-	*/
 
 	do
 	{
@@ -61,21 +57,14 @@ int read_status ( pstat *stats, char *pid )
 		{
 			eolp[0] = '\0';
 			eolp++;
-			if ( ! strncmp ( bolp, "Uid:", 4 ) )
+			if ( bolp[0] == 'S' && bolp[1] == 'w' )
 			{
-				sscanf ( bolp, "Uid: %d %d %*d %*d", &stats->uid, &stats->euid );
-				break;
+				sscanf ( bolp, "Swap:                 %d kB", &s );
+				swap += s;
+				/*
+				fprintf ( stderr, "line: %s (%d, total: %d)\n", bolp, s, swap );
+				*/
 			}
-			/*
-			functionality moved to read_smaps()
-			if ( ! strncmp ( bolp, "VmSw", 4 ) )
-			{
-				sscanf ( bolp, "VmSwap:                 %d kB", &s );
-				stats->swap[0] = s;
-				stats->swapchange = stats->swap[KEEPRECORDS-1] - stats->swap[0];
-				break;
-			}
-			*/
 			bolp = eolp;
 		}
 		/*
@@ -88,6 +77,7 @@ int read_status ( pstat *stats, char *pid )
 	/*
 	fprintf ( stderr, "total swap: %d\n", swap );
 	*/
+	stats->swap[0] = swap;
 
 	close ( fd );
 	return ( swap );

@@ -192,6 +192,7 @@ int main ( void )
 					stats_buffer->sequence = sequence;
 					stats_buffer->next = current->next;
 					memcpy ( current, stats_buffer, sizeof ( pstat ) );
+					read_smaps ( current, dir_entry->d_name );
 					read_status ( current, dir_entry->d_name );
 				}
 				/*

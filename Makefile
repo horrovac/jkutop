@@ -1,13 +1,16 @@
 FLAGS = -g -Wall
 
-jkutop: jkutop.o readstatus.o readmeminfo.o sorting.o printing.o
-	${CC} ${FLAGS} -lncurses -o jkutop jkutop.o readstatus.o readmeminfo.o sorting.o printing.o
+jkutop: jkutop.o readstatus.o readsmaps.o readmeminfo.o sorting.o printing.o
+	${CC} ${FLAGS} -lncurses -o jkutop jkutop.o readstatus.o readsmaps.o readmeminfo.o sorting.o printing.o
 
 jkutop.o: def.h jkutop.c
 	${CC} ${FLAGS} -c jkutop.c -o jkutop.o
 
 readstatus.o: def.h readstatus.c
 	${CC} ${FLAGS} -c readstatus.c -o readstatus.o
+
+readsmaps.o: def.h readsmaps.c
+	${CC} ${FLAGS} -c readsmaps.c -o readsmaps.o
 
 readmeminfo.o: def.h readmeminfo.c
 	${CC} ${FLAGS} -c readmeminfo.c -o readmeminfo.o
