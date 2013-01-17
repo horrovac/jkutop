@@ -28,17 +28,15 @@ int compare_elements ( const void *first, const void *second )
 	struct pidstat *one = * (struct pidstat **)first;
 	struct pidstat *two = * (struct pidstat **)second;
 	int retval = 0;
-	/*
 	if ( one->swap[0] > two->swap[0] )
-	{
-		retval = 1;
-	}
-	else if ( one->swap[0] < two->swap[0] )
 	{
 		retval = -1;
 	}
+	else if ( one->swap[0] < two->swap[0] )
+	{
+		retval = 1;
+	}
 	return ( retval );
-	*/
 	/*
 	if ( one->utime + one->stime > two->utime + two->stime )
 	{
@@ -49,6 +47,7 @@ int compare_elements ( const void *first, const void *second )
 		retval = 1;
 	}
 	*/
+	/*
 	if ( one->cpu_percent > two->cpu_percent )
 	{
 		retval = -1;
@@ -58,5 +57,6 @@ int compare_elements ( const void *first, const void *second )
 		retval = 1;
 	}
 	return ( retval );
+	*/
 }
 

@@ -119,7 +119,21 @@ void print_mem_percent ( ppstat entry )
 
 void print_swap ( ppstat entry )
 {
-	printw ( "%4d ", entry->swap[0] );
+	int temp;
+	int c;
+	temp = entry->swap[0];
+	for ( c = 1; temp > 10000; c++ )
+	{
+		temp /= 1024;
+	}
+	if ( c > 1 )
+	{
+		printw ( "%4d%c ", temp, suffixes[c] );
+	}
+	else
+	{
+		printw ( "%5d ", temp );
+	}
 }
 
 
