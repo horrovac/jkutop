@@ -62,20 +62,21 @@ int main ( void )
 	void dummy ( int useless ){};
 	void resize ( int useless )
 	{
+		endwin();
+		refresh();
 		getmaxyx ( win, row, col );
 	}
 	act.sa_handler = dummy;
 	act.sa_flags = 0;
 	sigaction ( 14, &act, NULL );
-	/*
 	act.sa_handler = resize;
 	act.sa_flags = 0;
 	sigaction ( 28, &act, NULL );
-	*/
 	sigemptyset ( &sigset );
 	sigaddset ( &sigset, SIGALRM );
 
 	win = initscr(); /* ncurses initialisation */
+	getmaxyx ( win, row, col );
 
 	stats_array = malloc ( allocated * sizeof ( ppstat ) );
 	memory = malloc ( sizeof ( mstat ) );

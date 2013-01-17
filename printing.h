@@ -117,6 +117,11 @@ void print_mem_percent ( ppstat entry )
 	printw ( "%4.1f ", ( (float) entry->res * getpagesize() * .1024 ) / memory->memtotal );
 }
 
+void print_swap ( ppstat entry )
+{
+	printw ( "%4d ", entry->swap[0] );
+}
+
 
 void print_time ( ppstat entry )
 {
@@ -154,6 +159,7 @@ prepr fields[20] =
 	{ 1, "%1s ", "S", print_status },
 	{ 1, "%6s ", "%CPU", print_cpu_percent },
 	{ 1, "%4s ", "%MEM", print_mem_percent },
+	{ 1, "%4s ", "SWAP", print_swap },
 	{ 1, "%9s ", "TIME+", print_time },
 	{ 1, "%-s ", "COMMAND", print_name },
 	{ 0, "", "",  NULL }
