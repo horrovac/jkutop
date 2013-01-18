@@ -57,14 +57,16 @@ int read_smaps ( pstat *stats, char *pid )
 		{
 			eolp[0] = '\0';
 			eolp++;
+			/*
 			if ( bolp[0] == 'S' && bolp[1] == 'w' )
 			{
+				*/
 				sscanf ( bolp, "Swap:                 %d kB", &s );
 				swap += s;
 				/*
 				fprintf ( stderr, "line: %s (%d, total: %d)\n", bolp, s, swap );
-				*/
 			}
+				*/
 			bolp = eolp;
 		}
 		/*

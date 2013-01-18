@@ -22,8 +22,7 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 #include "def.h"
 
-#define BUFFSIZE 1024
-
+//#define BUFFSIZE 1024
 
 int read_meminfo ( mstat *meminfo )
 {

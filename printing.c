@@ -26,7 +26,7 @@ int print_it ( ppstat *stats_array, int count )
 	extern pmstat memory;
 
 	mvprintw ( 1, 0, "KiB Mem:%10lu total, %10lu used, %10lu free, %10lu buffers", memory->memtotal, memory->memtotal - memory->memfree, memory->memfree, memory->buffers );
-	mvprintw ( 2, 0, "KiB Swap:%9d total, %10lu used, %10lu free, %10lu cached", memory->swaptotal, memory->swaptotal - memory->swapfree, memory->swapfree, memory->cached );
+	mvprintw ( 2, 0, "KiB Swap:%10lu total, %10lu used, %10lu free, %10lu cached", memory->swaptotal, memory->swaptotal - memory->swapfree, memory->swapfree, memory->cached );
 	mvprintw ( 3, 0, "JKUtop - horrovac invenit et fecit" );
 	attron ( A_REVERSE );
 	/*

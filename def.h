@@ -19,7 +19,7 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 #include <ncurses.h>
 
 #define KEEPRECORDS 5
-#define BUFFSIZE 1024
+#define BUFFSIZE 20480
 #define ALLOC_CHUNK 1000
 #define	HASH_TABLE_SIZE 1000
 
