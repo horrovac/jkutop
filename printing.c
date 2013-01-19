@@ -22,6 +22,7 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 
 int print_it ( ppstat *stats_array, int count )
 {
+	char input;
 	int i, j;
 	extern pmstat memory;
 
@@ -97,6 +98,17 @@ int print_it ( ppstat *stats_array, int count )
 		if ( i + 7 >= row )
 		{
 			break;
+		}
+	}
+	if ( ( input = getch () ) != ERR )
+	{
+		switch ( input )
+		{
+			case 'q':
+				exit ( 0 );
+				break;
+			default:
+				break;
 		}
 	}
 	printw ( "%d records, %d\n", count, (int) time( NULL ) );

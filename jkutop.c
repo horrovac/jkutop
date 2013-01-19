@@ -75,7 +75,9 @@ int main ( void )
 	sigemptyset ( &sigset );
 	sigaddset ( &sigset, SIGALRM );
 
-	win = initscr(); /* ncurses initialisation */
+	win = initscr();		/* ncurses initialisation */
+	noecho();				/* don't show keys typed */
+	nodelay ( win, TRUE );	/* don't delay while waiting for user input */
 	getmaxyx ( win, row, col );
 
 	stats_array = malloc ( allocated * sizeof ( ppstat ) );
