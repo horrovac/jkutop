@@ -77,7 +77,8 @@ int main ( void )
 
 	win = initscr();		/* ncurses initialisation */
 	noecho();				/* don't show keys typed */
-	nodelay ( win, TRUE );	/* don't delay while waiting for user input */
+	//nodelay ( win, TRUE );	/* don't delay while waiting for user input */
+	halfdelay ( 30 );
 	getmaxyx ( win, row, col );
 
 	stats_array = malloc ( allocated * sizeof ( ppstat ) );
@@ -224,8 +225,8 @@ int main ( void )
 		//break;
 		if ( sequence > 0 )
 		{
-			alarm ( 3 );
-			sigwait ( &sigset, &signal );
+			//alarm ( 3 );
+			//sigwait ( &sigset, &signal );
 		}
 		else
 		{

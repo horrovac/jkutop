@@ -100,18 +100,19 @@ int print_it ( ppstat *stats_array, int count )
 			break;
 		}
 	}
+	printw ( "%d records, %d\n", count, (int) time( NULL ) );
+	refresh();
 	if ( ( input = getch () ) != ERR )
 	{
 		switch ( input )
 		{
 			case 'q':
+				endwin();
 				exit ( 0 );
 				break;
 			default:
 				break;
 		}
 	}
-	printw ( "%d records, %d\n", count, (int) time( NULL ) );
-	refresh();
 	return ( i + 1 );
 }
