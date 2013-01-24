@@ -33,6 +33,7 @@ int read_status ( pstat *stats, char *pid )
 	char *bolp=NULL;
 	ssize_t read_chars=0;
 	int fd;
+	int s;
 	int swap=0;
 	int restsize = 0;
 
@@ -68,6 +69,8 @@ int read_status ( pstat *stats, char *pid )
 			}
 			/*
 			functionality moved to read_smaps()
+			...and then back here again, smaps is rubbish.
+			*/
 			if ( ! strncmp ( bolp, "VmSw", 4 ) )
 			{
 				sscanf ( bolp, "VmSwap:                 %d kB", &s );
@@ -75,7 +78,6 @@ int read_status ( pstat *stats, char *pid )
 				stats->swapchange = stats->swap[KEEPRECORDS-1] - stats->swap[0];
 				break;
 			}
-			*/
 			bolp = eolp;
 		}
 		/*
