@@ -20,7 +20,7 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
-#include "def.h"
+#include "jkutop.h"
 
 //#define BUFFSIZE 1024
 

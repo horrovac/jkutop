@@ -17,11 +17,31 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <sys/time.h>
 #include <ncurses.h>
+#include <pwd.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #define KEEPRECORDS 5
 #define BUFFSIZE 20480
 #define ALLOC_CHUNK 1000
 #define	HASH_TABLE_SIZE 1000
+#define FIELDS_AVAILABLE 12
+
+enum
+{
+	PID,
+	USER,
+	PR,
+	NI,
+	VIRT,
+	RES,
+	S,
+	CPU,
+	MEM,
+	SWAP,
+	TIME,
+	COMMAND
+};
 
 typedef struct pidstat
 {
@@ -58,6 +78,21 @@ typedef struct meminfo
 	unsigned long	swapfree;
 }mstat, *pmstat;
 
+typedef struct representation
+{
+	int		identifier;
+	char	format[10];
+	int		field_length;
+	char	fieldname[20];
+	void	(*printout)(ppstat entry);
+}repr, *prepr;
+
+typedef struct parametres
+{
+	int		sortby;
+	int		reversesort;
+}params;
+
 int compare_elements ( const void *first, const void *second );
 int process_filter ( const char *execname );
 int read_status ( pstat *stats, char *pid );
@@ -66,7 +101,22 @@ int sort_entries ( void );
 int print_it ( ppstat *stats_array, int count );
 int clean_up ( int sequence );
 int read_meminfo ( mstat *meminfo );
+void init_fields ( void );
 ppstat get_record (	int pid );
+void print_pid ( ppstat entry );
+void print_user ( ppstat entry );
+void print_priority ( ppstat entry );
+void print_niceness ( ppstat entry );
+void print_virt ( ppstat entry );
+void print_res ( ppstat entry );
+void print_status ( ppstat entry );
+void print_cpu_percent ( ppstat entry );
+void print_mem_percent ( ppstat entry );
+void print_swap ( ppstat entry );
+void print_time ( ppstat entry );
+void print_name ( ppstat entry );
 
 WINDOW *win;
 int row, col;
+params parametres;
+prepr display_fields[20];

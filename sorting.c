@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <stdlib.h>
-#include "def.h"
+#include "jkutop.h"
 
 int sort_entries ( void )
 {
@@ -28,35 +28,63 @@ int compare_elements ( const void *first, const void *second )
 	struct pidstat *one = * (struct pidstat **)first;
 	struct pidstat *two = * (struct pidstat **)second;
 	int retval = 0;
-	if ( one->swap[0] > two->swap[0] )
+	switch ( parametres.sortby )
 	{
-		retval = -1;
+		case PID:
+			if ( one->pid > two->pid )
+			{
+				retval = -1;
+			}
+			else if ( one->pid < two->pid )
+			{
+				retval = 1;
+			}
+			break;
+		case SWAP:
+			if ( one->swap[0] > two->swap[0] )
+			{
+				retval = -1;
+			}
+			else if ( one->swap[0] < two->swap[0] )
+			{
+				retval = 1;
+			}
+			break;
+		case VIRT:
+			if ( one->virt > two->virt )
+			{
+				retval = -1;
+			}
+			else if ( one->virt < two->virt )
+			{
+				retval = 1;
+			}
+			break;
+		case RES:
+			if ( one->res > two->res )
+			{
+				retval = -1;
+			}
+			else if ( one->res < two->res )
+			{
+				retval = 1;
+			}
+			break;
+		default:
+			if ( one->cpu_percent > two->cpu_percent )
+			{
+				retval = -1;
+			}
+			else if ( one->cpu_percent < two->cpu_percent )
+			{
+				retval = 1;
+			}
+			break;
 	}
-	else if ( one->swap[0] < two->swap[0] )
+	if ( parametres.reversesort == 1 )
 	{
-		retval = 1;
+		retval *= -1;
 	}
 	return ( retval );
-	/*
-	if ( one->utime + one->stime > two->utime + two->stime )
-	{
-		retval = -1;
-	}
-	else if ( one->utime + one->stime < two->utime + two->stime )
-	{
-		retval = 1;
-	}
-	*/
-	/*
-	if ( one->cpu_percent > two->cpu_percent )
-	{
-		retval = -1;
-	}
-	else if ( one->cpu_percent < two->cpu_percent )
-	{
-		retval = 1;
-	}
-	return ( retval );
-	*/
 }
 
