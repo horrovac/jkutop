@@ -65,7 +65,6 @@ int read_status ( pstat *stats, char *pid )
 			if ( ! strncmp ( bolp, "Uid:", 4 ) )
 			{
 				sscanf ( bolp, "Uid: %d %d %*d %*d", &stats->uid, &stats->euid );
-				break;
 			}
 			/*
 			functionality moved to read_smaps()
