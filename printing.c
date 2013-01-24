@@ -75,6 +75,9 @@ prepr select_field ( int y, int x, prepr current )
 				retval = &fields[highlight];
 				goto end;
 				break;
+			case 'q':
+				goto end;
+				break;
 			default:
 				break;
 		}
