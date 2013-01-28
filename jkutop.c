@@ -362,6 +362,70 @@ int clean_up ( int sequence )
 	return c;
 }
 
+int compare_elements ( const void *first, const void *second )
+{
+	struct pidstat *one = * (struct pidstat **)first;
+	struct pidstat *two = * (struct pidstat **)second;
+	int retval = 0;
+	switch ( parametres.sortby )
+	{
+		case PID:
+			if ( one->pid > two->pid )
+			{
+				retval = -1;
+			}
+			else if ( one->pid < two->pid )
+			{
+				retval = 1;
+			}
+			break;
+		case SWAP:
+			if ( one->swap[0] > two->swap[0] )
+			{
+				retval = -1;
+			}
+			else if ( one->swap[0] < two->swap[0] )
+			{
+				retval = 1;
+			}
+			break;
+		case VIRT:
+			if ( one->virt > two->virt )
+			{
+				retval = -1;
+			}
+			else if ( one->virt < two->virt )
+			{
+				retval = 1;
+			}
+			break;
+		case RES:
+			if ( one->res > two->res )
+			{
+				retval = -1;
+			}
+			else if ( one->res < two->res )
+			{
+				retval = 1;
+			}
+			break;
+		default:
+			if ( one->cpu_percent > two->cpu_percent )
+			{
+				retval = -1;
+			}
+			else if ( one->cpu_percent < two->cpu_percent )
+			{
+				retval = 1;
+			}
+			break;
+	}
+	if ( parametres.reversesort == 1 )
+	{
+		retval *= -1;
+	}
+	return ( retval );
+}
 
 void init_fields ( void )
 {
