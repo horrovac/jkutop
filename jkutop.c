@@ -38,18 +38,20 @@ pmstat memory;
 
 repr fields[FIELDS_AVAILABLE] =
 {
-	{ PID, "%7s ", 8, "PID", print_pid },
-	{ USER, "%-8s ", 9, "USER", print_user },
-	{ PR, "%2s ", 3, "PR", print_priority },
-	{ NI, "%3s ", 4, "NI", print_niceness },
-	{ VIRT, "%5s ", 6, "VIRT", print_virt },
-	{ RES, "%4s ", 5, "RES", print_res },
-	{ S, "%1s ", 2, "S", print_status },
-	{ CPU, "%6s ", 7, "%CPU", print_cpu_percent },
-	{ MEM, "%4s ", 5, "%MEM", print_mem_percent },
-	{ SWAP, "%4s ", 5, "SWAP", print_swap },
-	{ TIME, "%9s ", 10, "TIME+", print_time },
-	{ COMMAND, "%-s ", 8, "COMMAND", print_name }
+	{ PID, "%7d ", "", "%7s ", 8, "PID", print_pid },
+	{ PPID, "%7d ", "", "%7s ", 8, "PPID", print_ppid },
+	{ USER, "%8s ", "", "%-8s ", 9, "USER", print_user },
+	{ UID, "%6d ", "", "%6s ", 7, "UID", print_uid },
+	{ PR, "%2s ", "%2ld ", "%2s ", 3, "PR", print_priority },
+	{ NI, "%3ld ", "", "%3s ", 4, "NI", print_niceness },
+	{ VIRT, "%4ld%c ", "%5ld ", "%5s ", 6, "VIRT", print_virt },
+	{ RES, "%3lu%c ", "%4lu ", "%4s ", 5, "RES", print_res },
+	{ S, "%c ", "", "%1s ", 2, "S", print_status },
+	{ CPU, "%6.1f ", "", "%6s ", 7, "%CPU", print_cpu_percent },
+	{ MEM, "%4.1f ", "", "%4s ", 5, "%MEM", print_mem_percent },
+	{ SWAP, "%4d%c ", "%5d ", "%4s ", 5, "SWAP", print_swap },
+	{ TIME, "%6d:%02d ", "%3d:%02d.%02d ", "%9s ", 10, "TIME+", print_time },
+	{ COMMAND, "%-15s ", "", "%-s ", 8, "COMMAND", print_name }
 };
 
 char suffixes[] = " kmgt";
@@ -431,17 +433,16 @@ void init_fields ( void )
 {
 	extern repr fields[];
 	/* initialise display fields */
-	display_fields[0] = &fields[0];
-	display_fields[1] = &fields[1];
-	display_fields[2] = &fields[2];
-	display_fields[3] = &fields[3];
-	display_fields[4] = &fields[4];
-	display_fields[5] = &fields[5];
-	display_fields[6] = &fields[6];
-	display_fields[7] = &fields[7];
-	display_fields[8] = &fields[8];
-	display_fields[9] = &fields[9];
-	display_fields[10] = &fields[10];
-	display_fields[11] = &fields[11];
+	display_fields[0] = &fields[PID];
+	display_fields[1] = &fields[USER];
+	display_fields[2] = &fields[PR];
+	display_fields[3] = &fields[NI];
+	display_fields[4] = &fields[VIRT];
+	display_fields[5] = &fields[RES];
+	display_fields[6] = &fields[S];
+	display_fields[7] = &fields[CPU];
+	display_fields[8] = &fields[MEM];
+	display_fields[9] = &fields[TIME];
+	display_fields[10] = &fields[COMMAND];
 	display_fields[12] = NULL;
 }

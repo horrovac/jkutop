@@ -1,4 +1,4 @@
-FLAGS = -g -Wall
+FLAGS = -g -Wall -Wno-unused-but-set-variable
 
 #jkutop: jkutop.o readstatus.o readsmaps.o readmeminfo.o sorting.o printing.o
 #	${CC} ${FLAGS} -lncurses -o jkutop jkutop.o readstatus.o readsmaps.o readmeminfo.o sorting.o printing.o

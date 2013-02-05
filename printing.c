@@ -20,6 +20,8 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/types.h>
 #include "jkutop.h"
 
+#define MENU_WIDTH 16
+
 extern char suffixes[];
 extern repr fields[];
 
@@ -32,7 +34,7 @@ prepr select_field ( int y, int x, prepr current )
 	int highlight = 0;
 
 	cbreak();
-	menu_win = newwin ( FIELDS_AVAILABLE + 2, 16, y, x );
+	menu_win = newwin ( FIELDS_AVAILABLE + 2, MENU_WIDTH, y, x );
 	keypad ( menu_win, TRUE );
 	wborder ( menu_win, 0, 0, 0, 0, 0, 0, 0, 0 );
 
@@ -94,12 +96,13 @@ void modify_display ( void )
 	int focus = 0;
 	int c;
 	int x,y;
+	int maxx,maxy;
 	int ll_focus_y = 0;
 	int ll_focus_x = 0;
 	WINDOW *mod_win;
 
-	getmaxyx ( win, y, x );
-	mod_win = newwin ( 6, x, 0, 0 );
+	getmaxyx ( win, maxy, maxx );
+	mod_win = newwin ( 6, maxx, 0, 0 );
 	cbreak();
 	raw();
 	nonl();
@@ -123,13 +126,23 @@ void modify_display ( void )
 			{
 				wattroff ( mod_win, A_REVERSE );
 			}
-			wprintw ( mod_win, display_fields[i]->format, display_fields[i]->fieldname );
+			wprintw ( mod_win, display_fields[i]->header_format, display_fields[i]->fieldname );
 			if ( i == focus )
 			{
 				wattroff ( mod_win, A_REVERSE );
+				/* find out where to print the menu in case we need one */
 				getyx ( mod_win, y, x );
 				ll_focus_y = y + 1;
 				ll_focus_x = x - display_fields[i]->field_length;
+				/*
+				  keep menu inside the current window - in case it would "fall
+				  off" off the edge, move it inwards by the width of the menu
+				*/
+				if ( maxx < ( x + MENU_WIDTH ) )
+				{
+					ll_focus_x = maxx - MENU_WIDTH;
+				}
+
 				mvwaddch( mod_win, y - 1, x - display_fields[i]->field_length - 1 , ACS_ULCORNER);
 				mvwaddch( mod_win, y + 1, x - display_fields[i]->field_length - 1 , ACS_LLCORNER);
 				mvwaddch( mod_win, y + 1, x -1, ACS_LRCORNER);
@@ -207,13 +220,13 @@ int print_it ( ppstat *stats_array, int count )
 	mvprintw ( 4, 0, "%7s %-8s %2s %3s %5s %4s %1s %6s %4s %9s %-s", "PID", "USER", "PR", "NI", "VIRT", "RES", "S", "%CPU", "%MEM", "TIME+", "COMMAND" );
 	*/
 	move ( 4, 0 );
-	for ( j = 0; j < 20; j++ )
+	for ( j = 0; j < FIELDS_AVAILABLE; j++ )
 	{
 		if ( display_fields[j] == NULL )
 		{
 			break;
 		}
-		printw ( display_fields[j]->format, display_fields[j]->fieldname );
+		printw ( display_fields[j]->header_format, display_fields[j]->fieldname );
 	}
 	for ( i = 67; i < col; i++ )
 	{
@@ -238,13 +251,13 @@ int print_it ( ppstat *stats_array, int count )
 			{
 				attroff ( A_BOLD );
 			}
-			for ( j = 0; j < 20; j++ )
+			for ( j = 0; j < FIELDS_AVAILABLE; j++ )
 			{
 				if ( display_fields[j] == NULL )
 				{
 					break;
 				}
-				display_fields[j]->printout( stats_array[i] );
+				display_fields[j]->printout( stats_array[i], display_fields[j]->identifier );
 			}
 			/*
 			print_pid ( stats_array[i] );
@@ -297,39 +310,49 @@ int print_it ( ppstat *stats_array, int count )
 	return ( i + 1 );
 }
 
-void print_pid ( ppstat entry )
+void print_pid ( ppstat entry, int identifier )
 {
-	printw ( "%7d ", entry->pid );
+	printw ( fields[identifier].format, entry->pid );
 }
 
-void print_user ( ppstat entry )
+void print_ppid ( ppstat entry, int identifier )
+{
+	printw ( fields[identifier].format, entry->ppid );
+}
+
+void print_user ( ppstat entry, int identifier )
 {
 	struct passwd *pwentry;
 	pwentry = getpwuid ( entry->uid );
 
 	/* shorten the name to 8 char max */
 	pwentry->pw_name[8] = '\0';
-	printw ( "%8s ", pwentry->pw_name );
+	printw ( fields[identifier].format, pwentry->pw_name );
 }
 
-void print_priority ( ppstat entry )
+void print_uid ( ppstat entry, int identifier )
+{
+	printw ( fields[identifier].format, entry->uid );
+}
+
+void print_priority ( ppstat entry, int identifier )
 {
 	if ( entry->priority < 0 )
 	{
-		printw ( "rt " );
+		printw ( fields[identifier].format, "rt" );
 	}
 	else
 	{
-		printw ( "%2ld ", entry->priority );
+		printw ( fields[identifier].format_alt, entry->priority );
 	}
 }
 
-void print_niceness ( ppstat entry )
+void print_niceness ( ppstat entry, int identifier )
 {
-	printw ( "%3ld ", entry->niceness );
+	printw ( fields[identifier].format, entry->niceness );
 }
 
-void print_virt ( ppstat entry )
+void print_virt ( ppstat entry, int identifier )
 {
 	float temp;
 	int c;
@@ -340,15 +363,15 @@ void print_virt ( ppstat entry )
 	}
 	if ( c > 1 )
 	{
-		printw ( "%4ld%c ", (long) temp, suffixes[c] );
+		printw ( fields[identifier].format, (long) temp, suffixes[c] );
 	}
 	else
 	{
-		printw ( "%5ld ", (long) temp );
+		printw ( fields[identifier].format_alt, (long) temp );
 	}
 }
 
-void print_res ( ppstat entry )
+void print_res ( ppstat entry, int identifier )
 {
 	float temp;
 	int c;
@@ -360,31 +383,31 @@ void print_res ( ppstat entry )
 	}
 	if ( c > 1 )
 	{
-		printw ( "%3lu%c ", (long unsigned) temp, suffixes[c] );
+		printw ( fields[identifier].format, (long unsigned) temp, suffixes[c] );
 	}
 	else
 	{
-		printw ( "%4lu ", (long unsigned) temp );
+		printw ( fields[identifier].format_alt, (long unsigned) temp );
 	}
 }
 
-void print_status ( ppstat entry )
+void print_status ( ppstat entry, int identifier )
 {
-	 printw ( "%c ", entry->state );
+	printw ( fields[identifier].format, entry->state );
 }
 
-void print_cpu_percent ( ppstat entry )
+void print_cpu_percent ( ppstat entry, int identifier )
 {
-	printw ( "%6.1f ", entry->cpu_percent );
+	printw ( fields[identifier].format, entry->cpu_percent );
 }
 
-void print_mem_percent ( ppstat entry )
+void print_mem_percent ( ppstat entry, int identifier )
 {
 	extern pmstat memory;
-	printw ( "%4.1f ", ( (float) entry->res * getpagesize() * .1024 ) / memory->memtotal );
+	printw ( fields[identifier].format, ( (float) entry->res * getpagesize() * .1024 ) / memory->memtotal );
 }
 
-void print_swap ( ppstat entry )
+void print_swap ( ppstat entry, int identifier )
 {
 	int temp;
 	int c;
@@ -395,16 +418,16 @@ void print_swap ( ppstat entry )
 	}
 	if ( c > 1 )
 	{
-		printw ( "%4d%c ", temp, suffixes[c] );
+		printw ( fields[identifier].format, temp, suffixes[c] );
 	}
 	else
 	{
-		printw ( "%5d ", temp );
+		printw ( fields[identifier].format_alt, temp );
 	}
 }
 
 
-void print_time ( ppstat entry )
+void print_time ( ppstat entry, int identifier )
 {
 	long miliseconds;
 	int ms, sec, min;
@@ -416,17 +439,17 @@ void print_time ( ppstat entry )
 
 	if ( min >= 1000 )
 	{
-		printw ( "%6d:%02d ", min, sec );
+		printw ( fields[identifier].format, min, sec );
 	}
 	else
 	{
-		printw ( "%3d:%02d.%02d ", min, sec, ms );
+		printw ( fields[identifier].format_alt, min, sec, ms );
 	}
 }
 
-void print_name ( ppstat entry )
+void print_name ( ppstat entry, int identifier )
 {
-	printw ( "%-15s ", entry->name );
+	printw ( fields[identifier].format, entry->name );
 }
 
 

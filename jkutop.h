@@ -25,12 +25,13 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 #define BUFFSIZE 20480
 #define ALLOC_CHUNK 1000
 #define	HASH_TABLE_SIZE 1000
-#define FIELDS_AVAILABLE 12
 
 enum
 {
-	PID,
+	PID = 0,
+	PPID,
 	USER,
+	UID,
 	PR,
 	NI,
 	VIRT,
@@ -40,7 +41,8 @@ enum
 	MEM,
 	SWAP,
 	TIME,
-	COMMAND
+	COMMAND,
+	FIELDS_AVAILABLE	// not an identifier, # identifiers available
 };
 
 typedef struct pidstat
@@ -81,10 +83,12 @@ typedef struct meminfo
 typedef struct representation
 {
 	int		identifier;
-	char	format[10];
+	char	format[20];
+	char	format_alt[20];
+	char	header_format[20];
 	int		field_length;
 	char	fieldname[20];
-	void	(*printout)(ppstat entry);
+	void	(*printout)(ppstat entry, int identifier);
 }repr, *prepr;
 
 typedef struct parametres
@@ -103,18 +107,20 @@ int clean_up ( int sequence );
 int read_meminfo ( mstat *meminfo );
 void init_fields ( void );
 ppstat get_record (	int pid );
-void print_pid ( ppstat entry );
-void print_user ( ppstat entry );
-void print_priority ( ppstat entry );
-void print_niceness ( ppstat entry );
-void print_virt ( ppstat entry );
-void print_res ( ppstat entry );
-void print_status ( ppstat entry );
-void print_cpu_percent ( ppstat entry );
-void print_mem_percent ( ppstat entry );
-void print_swap ( ppstat entry );
-void print_time ( ppstat entry );
-void print_name ( ppstat entry );
+void print_pid ( ppstat entry, int identifier );
+void print_ppid ( ppstat entry, int identifier );
+void print_user ( ppstat entry, int identifier );
+void print_uid ( ppstat entry, int identifier );
+void print_priority ( ppstat entry, int identifier );
+void print_niceness ( ppstat entry, int identifier );
+void print_virt ( ppstat entry, int identifier );
+void print_res ( ppstat entry, int identifier );
+void print_status ( ppstat entry, int identifier );
+void print_cpu_percent ( ppstat entry, int identifier );
+void print_mem_percent ( ppstat entry, int identifier );
+void print_swap ( ppstat entry, int identifier );
+void print_time ( ppstat entry, int identifier );
+void print_name ( ppstat entry, int identifier );
 
 WINDOW *win;
 int row, col;
