@@ -56,7 +56,15 @@ repr fields[FIELDS_AVAILABLE] =
 	{ MAJFLT, "%3lu%c ", "%4lu ", "%4s ", 5, "nMaj", print_majflt }
 };
 
-char suffixes[] = " kmgt";
+char suffixes[] = " kmgtp";
+
+	void dummy ( int useless ){};
+	void resize ( int useless )
+	{
+		endwin();
+		refresh();
+		getmaxyx ( win, row, col );
+	}
 
 
 int main ( void )
@@ -82,13 +90,6 @@ int main ( void )
 	struct sigaction	act;
 	sigset_t			sigset;
 	//int					signal;
-	void dummy ( int useless ){};
-	void resize ( int useless )
-	{
-		endwin();
-		refresh();
-		getmaxyx ( win, row, col );
-	}
 	act.sa_handler = dummy;
 	act.sa_flags = 0;
 	sigaction ( 14, &act, NULL );
@@ -187,7 +188,7 @@ int main ( void )
 					continue;
 				}
 				buffer[chars_read+1] = '\0';
-				sscanf ( buffer, "%d (%[^)]) %c %d %*d %*d %*d %*d %*d %lu %*d %lu %*d %Lu %Lu %Ld %Ld %ld %ld %*d %*d %*d %lu %ld", &stats_buffer->pid, stats_buffer->name, state, &stats_buffer->ppid, &stats_buffer->minflt, &stats_buffer->majflt, &stats_buffer->utime, &stats_buffer->stime, &stats_buffer->cutime, &stats_buffer->cstime, &stats_buffer->priority, &stats_buffer->niceness, &stats_buffer->virt, &stats_buffer->res );
+				sscanf ( buffer, "%d (%[^)]) %c %d %*d %*d %*d %*d %*d %Lu %*d %Lu %*d %Lu %Lu %Ld %Ld %ld %ld %*d %*d %*d %lu %ld", &stats_buffer->pid, stats_buffer->name, state, &stats_buffer->ppid, &stats_buffer->minflt, &stats_buffer->majflt, &stats_buffer->utime, &stats_buffer->stime, &stats_buffer->cutime, &stats_buffer->cstime, &stats_buffer->priority, &stats_buffer->niceness, &stats_buffer->virt, &stats_buffer->res );
 				if ( ! process_filter ( stats_buffer->name ) )
 				{
 					/*

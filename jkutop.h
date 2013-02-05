@@ -55,8 +55,8 @@ typedef struct pidstat
 	int					euid;
 	int					pid;
 	int					ppid;
-	unsigned long		majflt;
-	unsigned long		minflt;
+	unsigned long long	majflt;
+	unsigned long long	minflt;
 	unsigned long long	utime;
 	unsigned long long	stime;
 	unsigned long long	utime_lastpass;
