@@ -452,4 +452,42 @@ void print_name ( ppstat entry, int identifier )
 	printw ( fields[identifier].format, entry->name );
 }
 
+void print_minflt ( ppstat entry, int identifier )
+{
+	float temp;
+	int c;
+	temp = entry->minflt;
+	for ( c = 1; temp > 1000; c++ )
+	{
+		temp /= 1024;
+	}
+	if ( c > 1 )
+	{
+		printw ( fields[identifier].format, (long unsigned) temp, suffixes[c] );
+	}
+	else
+	{
+		printw ( fields[identifier].format_alt, (long unsigned) temp );
+	}
+}
 
+void print_majflt ( ppstat entry, int identifier )
+{
+	float temp;
+	int c;
+	temp = entry->majflt;
+	for ( c = 1; temp > 1000; c++ )
+	{
+		temp /= 1024;
+	}
+	if ( c > 1 )
+	{
+		printw ( fields[identifier].format, (long unsigned) temp, suffixes[c] );
+	}
+	else
+	{
+		printw ( fields[identifier].format_alt, (long unsigned) temp );
+	}
+
+	printw ( fields[identifier].format, entry->majflt );
+}

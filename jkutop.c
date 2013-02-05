@@ -51,7 +51,9 @@ repr fields[FIELDS_AVAILABLE] =
 	{ MEM, "%4.1f ", "", "%4s ", 5, "%MEM", print_mem_percent },
 	{ SWAP, "%4d%c ", "%5d ", "%4s ", 5, "SWAP", print_swap },
 	{ TIME, "%6d:%02d ", "%3d:%02d.%02d ", "%9s ", 10, "TIME+", print_time },
-	{ COMMAND, "%-15s ", "", "%-s ", 8, "COMMAND", print_name }
+	{ COMMAND, "%-15s ", "", "%-s ", 8, "COMMAND", print_name },
+	{ MINFLT, "%3lu%c ", "%4lu ", "%4s ", 5, "nMin", print_minflt },
+	{ MAJFLT, "%3lu%c ", "%4lu ", "%4s ", 5, "nMaj", print_majflt }
 };
 
 char suffixes[] = " kmgt";
@@ -185,7 +187,7 @@ int main ( void )
 					continue;
 				}
 				buffer[chars_read+1] = '\0';
-				sscanf ( buffer, "%d (%[^)]) %c %d %*d %*d %*d %*d %*d %*d %*d %*d %*d %Lu %Lu %Ld %Ld %ld %ld %*d %*d %*d %lu %ld", &stats_buffer->pid, stats_buffer->name, state, &stats_buffer->ppid, &stats_buffer->utime, &stats_buffer->stime, &stats_buffer->cutime, &stats_buffer->cstime, &stats_buffer->priority, &stats_buffer->niceness, &stats_buffer->virt, &stats_buffer->res );
+				sscanf ( buffer, "%d (%[^)]) %c %d %*d %*d %*d %*d %*d %lu %*d %lu %*d %Lu %Lu %Ld %Ld %ld %ld %*d %*d %*d %lu %ld", &stats_buffer->pid, stats_buffer->name, state, &stats_buffer->ppid, &stats_buffer->minflt, &stats_buffer->majflt, &stats_buffer->utime, &stats_buffer->stime, &stats_buffer->cutime, &stats_buffer->cstime, &stats_buffer->priority, &stats_buffer->niceness, &stats_buffer->virt, &stats_buffer->res );
 				if ( ! process_filter ( stats_buffer->name ) )
 				{
 					/*
@@ -407,6 +409,26 @@ int compare_elements ( const void *first, const void *second )
 				retval = -1;
 			}
 			else if ( one->res < two->res )
+			{
+				retval = 1;
+			}
+			break;
+		case MINFLT:
+			if ( one->minflt > two->minflt )
+			{
+				retval = -1;
+			}
+			else if ( one->minflt < two->minflt )
+			{
+				retval = 1;
+			}
+			break;
+		case MAJFLT:
+			if ( one->majflt > two->majflt )
+			{
+				retval = -1;
+			}
+			else if ( one->majflt < two->majflt )
 			{
 				retval = 1;
 			}

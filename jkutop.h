@@ -42,6 +42,8 @@ enum
 	SWAP,
 	TIME,
 	COMMAND,
+	MINFLT,
+	MAJFLT,
 	FIELDS_AVAILABLE	// not an identifier, # identifiers available
 };
 
@@ -53,6 +55,8 @@ typedef struct pidstat
 	int					euid;
 	int					pid;
 	int					ppid;
+	unsigned long		majflt;
+	unsigned long		minflt;
 	unsigned long long	utime;
 	unsigned long long	stime;
 	unsigned long long	utime_lastpass;
@@ -121,6 +125,8 @@ void print_mem_percent ( ppstat entry, int identifier );
 void print_swap ( ppstat entry, int identifier );
 void print_time ( ppstat entry, int identifier );
 void print_name ( ppstat entry, int identifier );
+void print_minflt ( ppstat entry, int identifier );
+void print_majflt ( ppstat entry, int identifier );
 
 WINDOW *win;
 int row, col;
