@@ -57,14 +57,16 @@ repr fields[FIELDS_AVAILABLE] =
 };
 
 char suffixes[] = " kmgtp";
+cstats	cpu_stats[2];
 
-	void dummy ( int useless ){};
-	void resize ( int useless )
-	{
-		endwin();
-		refresh();
-		getmaxyx ( win, row, col );
-	}
+/* signal handler functions */
+void dummy ( int useless ){};
+void resize ( int useless )
+{
+	endwin();
+	refresh();
+	getmaxyx ( win, row, col );
+}
 
 
 int main ( void )
@@ -136,8 +138,9 @@ int main ( void )
 		if ( read ( procstat, buffer, 256 ) )
 		{
 			ticks_before = ticks;
-			sscanf ( buffer, "%*s %llu %llu %llu %llu", &user, &nice, &system, &idle );
-			ticks = user + nice + system + idle;
+			memcpy ( &cpu_stats[1], &cpu_stats[0], sizeof ( cstats ) );
+			sscanf ( buffer, "%*s %llu %llu %llu %llu %llu %llu %llu %llu", &cpu_stats[0].user, &cpu_stats[0].nice, &cpu_stats[0].system, &cpu_stats[0].idle, &cpu_stats[0].iowait, &cpu_stats[0].irq, &cpu_stats[0].softirq, &cpu_stats[0].steal );
+			ticks = cpu_stats[0].user + cpu_stats[0].nice + cpu_stats[0].system + cpu_stats[0].idle;
 			if ( ticks_before != 0 )
 			{
 				ticks_passed = ( ticks - ticks_before ) / sysconf ( _SC_NPROCESSORS_ONLN );

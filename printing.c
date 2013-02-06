@@ -78,9 +78,11 @@ prepr select_field ( int y, int x, prepr current )
 				goto end;
 				break;
 			case 'q':
+			case 27:	/* ESC key */
 				goto end;
 				break;
 			default:
+				printf ( "\a" );
 				break;
 		}
 	}
@@ -102,7 +104,7 @@ void modify_display ( void )
 	WINDOW *mod_win;
 
 	getmaxyx ( win, maxy, maxx );
-	mod_win = newwin ( 6, maxx, 0, 0 );
+	mod_win = newwin ( 8, maxx, 0, 0 );
 	cbreak();
 	raw();
 	nonl();
@@ -114,7 +116,7 @@ void modify_display ( void )
 		mvwprintw ( mod_win,  0, 0, "Use arrow keys (or vim cursor keys) to navigate;" );
 		mvwprintw ( mod_win,  1, 0, "Set sort field (highlighted) with 's', order %s (change with 'r')", parametres.reversesort ? "ascending" : "descending" );
 		mvwprintw ( mod_win,  2, 0, "go down or press enter to change a field, select with space key");
-		wmove ( mod_win, 4, 0 );
+		wmove ( mod_win, 6, 0 );
 		for ( i = 0; i < 20; i++ )
 		{
 			wattron ( mod_win, A_REVERSE );
@@ -187,11 +189,11 @@ void modify_display ( void )
 				goto end;
 				break;
 			case 'q':
+			case 27:	/* ESC key */
 				goto end;
 				break;
-				/* blah */
-				break;
 			default:
+				printf ( "\a" );
 				break;
 		}
 		wattroff ( mod_win, A_REVERSE );
@@ -207,19 +209,42 @@ int print_it ( ppstat *stats_array, int count )
 {
 	char input;
 	int i, j;
+	int hertz;
 	extern pmstat memory;
+	extern double ticks_passed;
+	double	total_ticks;
+	extern cstats cpu_stats[];
+
+	hertz = sysconf ( _SC_CLK_TCK );
+	total_ticks = ticks_passed * sysconf ( _SC_NPROCESSORS_ONLN );
 	keypad ( win, TRUE );
 	erase();
 
-	mvprintw ( 1, 0, "KiB Mem:%10lu total, %10lu used, %10lu free, %10lu buffers", memory->memtotal, memory->memtotal - memory->memfree, memory->memfree, memory->buffers );
-	mvprintw ( 2, 0, "KiB Swap:%10lu total, %10lu used, %10lu free, %10lu cached", memory->swaptotal, memory->swaptotal - memory->swapfree, memory->swapfree, memory->cached );
-	mvprintw ( 3, 0, "JKUtop - horrovac invenit et fecit" );
+	if ( cpu_stats[1].user > 0 )
+	{
+		mvprintw ( 2, 0, "Cpu(s):%5.1f us,%5.1f sy,%5.1f ni,%5.1f id,%5.1f wa,%5.1f hi,%5.1f si,%5.1f st",
+		((cpu_stats[0].user - cpu_stats[1].user)/total_ticks) * 100,
+	 	((cpu_stats[0].system - cpu_stats[1].system)/total_ticks) * 100,
+		((cpu_stats[0].nice - cpu_stats[1].nice)/total_ticks) * 100 ,
+		((cpu_stats[0].idle - cpu_stats[1].idle)/total_ticks) * 100 ,
+		((cpu_stats[0].iowait - cpu_stats[1].iowait)/total_ticks) * 100,
+		((cpu_stats[0].irq - cpu_stats[1].irq)/total_ticks) * 100,
+		((cpu_stats[0].softirq - cpu_stats[1].softirq)/total_ticks) * 100,
+		((cpu_stats[0].steal - cpu_stats[1].steal)/total_ticks) * 100 );
+	}
+	else
+	{
+		mvprintw ( 2, 0, "Cpu(s):%5.1f us,%5.1f sy,%5.1f ni,%5.1f id,%5.1f wa,%5.1f hi,%5.1f si,%5.1f st", 0, 0, 0, 0, 0, 0, 0, 0 );
+	}
+	mvprintw ( 3, 0, "KiB Mem:%10lu total, %10lu used, %10lu free, %10lu buffers", memory->memtotal, memory->memtotal - memory->memfree, memory->memfree, memory->buffers );
+	mvprintw ( 4, 0, "KiB Swap:%10lu total, %10lu used, %10lu free, %10lu cached", memory->swaptotal, memory->swaptotal - memory->swapfree, memory->swapfree, memory->cached );
+	mvprintw ( 5, 0, "JKUtop - horrovac invenit et fecit" );
 	attron ( A_REVERSE );
 	/*
 	print the header
 	mvprintw ( 4, 0, "%7s %-8s %2s %3s %5s %4s %1s %6s %4s %9s %-s", "PID", "USER", "PR", "NI", "VIRT", "RES", "S", "%CPU", "%MEM", "TIME+", "COMMAND" );
 	*/
-	move ( 4, 0 );
+	move ( 6, 0 );
 	for ( j = 0; j < FIELDS_AVAILABLE; j++ )
 	{
 		if ( display_fields[j] == NULL )
@@ -241,7 +266,7 @@ int print_it ( ppstat *stats_array, int count )
 		/*
 		if ( current->swap[0] )
 		*/
-		move ( i + 5, 0 );
+		move ( i + 7, 0 );
 		{
 			if ( stats_array[i]->state == 'R' )
 			{
@@ -280,7 +305,7 @@ int print_it ( ppstat *stats_array, int count )
 			//printw ( "%-15s %8d %8d %8d %8d %8d %8d\n", current->name, current->swap[0], current->swap[1], current->swap[2], current->swap[3], current->swap[4], current->swapchange );
 		}
 		/* limit output to 40 rows */
-		if ( i + 7 >= row )
+		if ( i + 9 >= row )
 		{
 			break;
 		}
