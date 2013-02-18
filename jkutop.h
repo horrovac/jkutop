@@ -44,6 +44,7 @@ enum
 	COMMAND,
 	MINFLT,
 	MAJFLT,
+	MAJFLT_DELTA,
 	FIELDS_AVAILABLE	// not an identifier, # identifiers available
 };
 
@@ -56,6 +57,7 @@ typedef struct pidstat
 	int					pid;
 	int					ppid;
 	unsigned long long	majflt;
+	int					majflt_delta;
 	unsigned long long	minflt;
 	unsigned long long	utime;
 	unsigned long long	stime;
@@ -123,6 +125,9 @@ int clean_up ( int sequence );
 int read_meminfo ( mstat *meminfo );
 void init_fields ( void );
 ppstat get_record (	int pid );
+/* defined in printing.c */
+prepr select_field ( int y, int x, prepr current );
+void modify_display ( void );
 void print_pid ( ppstat entry, int identifier );
 void print_ppid ( ppstat entry, int identifier );
 void print_user ( ppstat entry, int identifier );
@@ -139,6 +144,7 @@ void print_time ( ppstat entry, int identifier );
 void print_name ( ppstat entry, int identifier );
 void print_minflt ( ppstat entry, int identifier );
 void print_majflt ( ppstat entry, int identifier );
+void print_majflt_delta ( ppstat entry, int identifier );
 
 WINDOW *win;
 int row, col;

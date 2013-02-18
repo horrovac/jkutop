@@ -25,71 +25,116 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 extern char suffixes[];
 extern repr fields[];
 
-prepr select_field ( int y, int x, prepr current )
+
+int print_it ( ppstat *stats_array, int count )
 {
-	WINDOW *menu_win;
-	prepr retval = current;
-	int i;
-	int c;
-	int highlight = 0;
+	char input;
+	int i, j;
+	int hertz;
+	extern pmstat memory;
+	extern double ticks_passed;
+	double	total_ticks;
+	extern cstats cpu_stats[];
 
-	cbreak();
-	menu_win = newwin ( FIELDS_AVAILABLE + 2, MENU_WIDTH, y, x );
-	keypad ( menu_win, TRUE );
-	wborder ( menu_win, 0, 0, 0, 0, 0, 0, 0, 0 );
+	hertz = sysconf ( _SC_CLK_TCK );
+	total_ticks = ticks_passed * sysconf ( _SC_NPROCESSORS_ONLN );
+	keypad ( win, TRUE );
+	erase();
 
-	while ( 1 )
+	if ( cpu_stats[1].user > 0 )
 	{
-		for ( i = 0; i < FIELDS_AVAILABLE; i++ )
+		mvprintw ( 2, 0, "Cpu(s):%5.1f us,%5.1f sy,%5.1f ni,%5.1f id,%5.1f wa,%5.1f hi,%5.1f si,%5.1f st",
+		((cpu_stats[0].user - cpu_stats[1].user)/total_ticks) * 100,
+	 	((cpu_stats[0].system - cpu_stats[1].system)/total_ticks) * 100,
+		((cpu_stats[0].nice - cpu_stats[1].nice)/total_ticks) * 100 ,
+		((cpu_stats[0].idle - cpu_stats[1].idle)/total_ticks) * 100 ,
+		((cpu_stats[0].iowait - cpu_stats[1].iowait)/total_ticks) * 100,
+		((cpu_stats[0].irq - cpu_stats[1].irq)/total_ticks) * 100,
+		((cpu_stats[0].softirq - cpu_stats[1].softirq)/total_ticks) * 100,
+		((cpu_stats[0].steal - cpu_stats[1].steal)/total_ticks) * 100 );
+	}
+	else
+	{
+		mvprintw ( 2, 0, "Cpu(s):%5.1f us,%5.1f sy,%5.1f ni,%5.1f id,%5.1f wa,%5.1f hi,%5.1f si,%5.1f st", 0, 0, 0, 0, 0, 0, 0, 0 );
+	}
+	mvprintw ( 3, 0, "KiB Mem:%10lu total, %10lu used, %10lu free, %10lu buffers", memory->memtotal, memory->memtotal - memory->memfree, memory->memfree, memory->buffers );
+	mvprintw ( 4, 0, "KiB Swap:%10lu total, %10lu used, %10lu free, %10lu cached", memory->swaptotal, memory->swaptotal - memory->swapfree, memory->swapfree, memory->cached );
+	mvprintw ( 5, 0, "JKUtop - horrovac invenit et fecit" );
+	attron ( A_REVERSE );
+	/*
+	print the header
+	*/
+	move ( 6, 0 );
+	for ( j = 0; j < FIELDS_AVAILABLE; j++ )
+	{
+		if ( display_fields[j] == NULL )
 		{
-			wattroff ( menu_win, A_REVERSE );
-			if ( i == highlight )
-			{
-				wattron ( menu_win, A_REVERSE );
-			}
-			mvwprintw ( menu_win, i+1, 2, "%12s", fields[i].fieldname );
-			if ( current->identifier == fields[i].identifier )
-			{
-				wprintw ( menu_win, "*" );
-			}
+			break;
 		}
-		wrefresh( menu_win );
-		c = getch();
-		switch ( c )
+		printw ( display_fields[j]->header_format, display_fields[j]->fieldname );
+	}
+	for ( i = 67; i < col; i++ )
+	{
+		printw ( " " );
+	}
+	printw ( "\n" );
+	attroff ( A_REVERSE );
+
+	/*
+	print the data fields
+	*/
+	for ( i = 0; i < count; i++ )
+	{
+		move ( i + 7, 0 );
 		{
-			case 'j':
-			case KEY_DOWN:
-				if ( highlight < FIELDS_AVAILABLE - 1 )
+			if ( stats_array[i]->state == 'R' )
+			{
+			attron ( A_BOLD );
+			}
+			else
+			{
+				attroff ( A_BOLD );
+			}
+			for ( j = 0; j < FIELDS_AVAILABLE; j++ )
+			{
+				if ( display_fields[j] == NULL )
 				{
-					highlight++;
+					break;
 				}
-				break;
-			case 'k':
-			case KEY_UP:
-				if ( highlight > 0 )
-				{
-					highlight--;
-				}
-				break;
-			case 's':
-			case KEY_ENTER:
-			case ' ':
-				retval = &fields[highlight];
-				goto end;
-				break;
+				display_fields[j]->printout( stats_array[i], display_fields[j]->identifier );
+			}
+			printw ( "\n" );
+
+		}
+		/* limit output to visible rows */
+		if ( i + 9 >= row )
+		{
+			break;
+		}
+	}
+	printw ( "%d records, %d\n", count, (int) time( NULL ) );
+	refresh();
+	if ( ( input = getch () ) != ERR )
+	{
+		switch ( input )
+		{
 			case 'q':
-			case 27:	/* ESC key */
-				goto end;
+				endwin();
+				exit ( 0 );
+				break;
+			case 'o':
+			case 'O':
+			case 's':
+			case 'S':
+			case 'f':
+			case 'F':
+				modify_display();
 				break;
 			default:
-				printf ( "\a" );
 				break;
 		}
 	}
-	end: ;
-	keypad ( menu_win, FALSE );
-	delwin ( menu_win );
-	return ( retval );
+	return ( i + 1 );
 }
 
 void modify_display ( void )
@@ -167,11 +212,16 @@ void modify_display ( void )
 					focus--;
 				}
 				break;
-			case 'l':
+			case 'l':		
 			case KEY_RIGHT:
 				if ( display_fields[focus + 1] != NULL )
 				{
 					focus++;
+				}
+				break;
+			case 'i':		/* insert a field */
+				for ( i = focus + 1; display_fields[i] != 0; i++ )
+				{
 				}
 				break;
 			case 's':
@@ -205,134 +255,72 @@ void modify_display ( void )
 	delwin( mod_win );
 }
 
-int print_it ( ppstat *stats_array, int count )
+
+prepr select_field ( int y, int x, prepr current )
 {
-	char input;
-	int i, j;
-	int hertz;
-	extern pmstat memory;
-	extern double ticks_passed;
-	double	total_ticks;
-	extern cstats cpu_stats[];
+	WINDOW *menu_win;
+	prepr retval = current;
+	int i;
+	int c;
+	int highlight = 0;
 
-	hertz = sysconf ( _SC_CLK_TCK );
-	total_ticks = ticks_passed * sysconf ( _SC_NPROCESSORS_ONLN );
-	keypad ( win, TRUE );
-	erase();
+	cbreak();
+	menu_win = newwin ( FIELDS_AVAILABLE + 2, MENU_WIDTH, y, x );
+	keypad ( menu_win, TRUE );
+	wborder ( menu_win, 0, 0, 0, 0, 0, 0, 0, 0 );
 
-	if ( cpu_stats[1].user > 0 )
+	while ( 1 )
 	{
-		mvprintw ( 2, 0, "Cpu(s):%5.1f us,%5.1f sy,%5.1f ni,%5.1f id,%5.1f wa,%5.1f hi,%5.1f si,%5.1f st",
-		((cpu_stats[0].user - cpu_stats[1].user)/total_ticks) * 100,
-	 	((cpu_stats[0].system - cpu_stats[1].system)/total_ticks) * 100,
-		((cpu_stats[0].nice - cpu_stats[1].nice)/total_ticks) * 100 ,
-		((cpu_stats[0].idle - cpu_stats[1].idle)/total_ticks) * 100 ,
-		((cpu_stats[0].iowait - cpu_stats[1].iowait)/total_ticks) * 100,
-		((cpu_stats[0].irq - cpu_stats[1].irq)/total_ticks) * 100,
-		((cpu_stats[0].softirq - cpu_stats[1].softirq)/total_ticks) * 100,
-		((cpu_stats[0].steal - cpu_stats[1].steal)/total_ticks) * 100 );
-	}
-	else
-	{
-		mvprintw ( 2, 0, "Cpu(s):%5.1f us,%5.1f sy,%5.1f ni,%5.1f id,%5.1f wa,%5.1f hi,%5.1f si,%5.1f st", 0, 0, 0, 0, 0, 0, 0, 0 );
-	}
-	mvprintw ( 3, 0, "KiB Mem:%10lu total, %10lu used, %10lu free, %10lu buffers", memory->memtotal, memory->memtotal - memory->memfree, memory->memfree, memory->buffers );
-	mvprintw ( 4, 0, "KiB Swap:%10lu total, %10lu used, %10lu free, %10lu cached", memory->swaptotal, memory->swaptotal - memory->swapfree, memory->swapfree, memory->cached );
-	mvprintw ( 5, 0, "JKUtop - horrovac invenit et fecit" );
-	attron ( A_REVERSE );
-	/*
-	print the header
-	mvprintw ( 4, 0, "%7s %-8s %2s %3s %5s %4s %1s %6s %4s %9s %-s", "PID", "USER", "PR", "NI", "VIRT", "RES", "S", "%CPU", "%MEM", "TIME+", "COMMAND" );
-	*/
-	move ( 6, 0 );
-	for ( j = 0; j < FIELDS_AVAILABLE; j++ )
-	{
-		if ( display_fields[j] == NULL )
+		for ( i = 0; i < FIELDS_AVAILABLE; i++ )
 		{
-			break;
+			wattroff ( menu_win, A_REVERSE );
+			if ( i == highlight )
+			{
+				wattron ( menu_win, A_REVERSE );
+			}
+			mvwprintw ( menu_win, i+1, 2, "%12s", fields[i].fieldname );
+			if ( current->identifier == fields[i].identifier )
+			{
+				wprintw ( menu_win, "*" );
+			}
 		}
-		printw ( display_fields[j]->header_format, display_fields[j]->fieldname );
-	}
-	for ( i = 67; i < col; i++ )
-	{
-		printw ( " " );
-	}
-	printw ( "\n" );
-	attroff ( A_REVERSE );
-
-	//c = 0;
-	for ( i = 0; i < count; i++ )
-	{
-		/*
-		if ( current->swap[0] )
-		*/
-		move ( i + 7, 0 );
+		wrefresh( menu_win );
+		c = getch();
+		switch ( c )
 		{
-			if ( stats_array[i]->state == 'R' )
-			{
-			attron ( A_BOLD );
-			}
-			else
-			{
-				attroff ( A_BOLD );
-			}
-			for ( j = 0; j < FIELDS_AVAILABLE; j++ )
-			{
-				if ( display_fields[j] == NULL )
+			case 'j':
+			case KEY_DOWN:
+				if ( highlight < FIELDS_AVAILABLE - 1 )
 				{
-					break;
+					highlight++;
 				}
-				display_fields[j]->printout( stats_array[i], display_fields[j]->identifier );
-			}
-			/*
-			print_pid ( stats_array[i] );
-			print_user ( stats_array[i] );
-			print_priority ( stats_array[i] );
-			print_niceness ( stats_array[i] );
-			print_virt ( stats_array[i] );
-			print_res ( stats_array[i] );
-			print_status ( stats_array[i] );
-			print_cpu_percent ( stats_array[i] );
-			print_mem_percent ( stats_array[i] );
-			print_time ( stats_array[i] );
-			print_name ( stats_array[i] );
-			*/
-			printw ( "\n" );
-
-			//printw ( "%c %10lu %-20s\n", stats_array[i]->state, ( stats_array[i]->utime + stats_array[i]->stime + stats_array[i]->cutime + stats_array[i]->cstime ) / sysconf ( _SC_CLK_TCK ), stats_array[i]->name );
-
-			//printw ( "%-15s %8d %8d %10d %10.2f %10.2f %5c\n", stats_array[i]->name, stats_array[i]->swap[0], stats_array[i]->pid, stats_array[i]->ppid, (float) stats_array[i]->user / HZ, (float) stats_array[i]->kernel / HZ, stats_array[i]->state );
-			//printw ( "%-15s %8d %8d %8d %8d %8d %8d\n", current->name, current->swap[0], current->swap[1], current->swap[2], current->swap[3], current->swap[4], current->swapchange );
-		}
-		/* limit output to 40 rows */
-		if ( i + 9 >= row )
-		{
-			break;
-		}
-	}
-	printw ( "%d records, %d\n", count, (int) time( NULL ) );
-	refresh();
-	if ( ( input = getch () ) != ERR )
-	{
-		switch ( input )
-		{
-			case 'q':
-				endwin();
-				exit ( 0 );
 				break;
-			case 'o':
-			case 'O':
+			case 'k':
+			case KEY_UP:
+				if ( highlight > 0 )
+				{
+					highlight--;
+				}
+				break;
 			case 's':
-			case 'S':
-			case 'f':
-			case 'F':
-				modify_display();
+			case KEY_ENTER:
+			case ' ':
+				retval = &fields[highlight];
+				goto end;
+				break;
+			case 'q':
+			case 27:	/* ESC key */
+				goto end;
 				break;
 			default:
+				printf ( "\a" );
 				break;
 		}
 	}
-	return ( i + 1 );
+	end: ;
+	keypad ( menu_win, FALSE );
+	delwin ( menu_win );
+	return ( retval );
 }
 
 void print_pid ( ppstat entry, int identifier )
@@ -501,6 +489,25 @@ void print_majflt ( ppstat entry, int identifier )
 	float temp;
 	int c;
 	temp = entry->majflt;
+	for ( c = 0; temp > 1000; c++ )
+	{
+		temp /= 1024;
+	}
+	if ( c > 0 )
+	{
+		printw ( fields[identifier].format, (long unsigned) temp, suffixes[c] );
+	}
+	else
+	{
+		printw ( fields[identifier].format_alt, (long unsigned) temp );
+	}
+}
+
+void print_majflt_delta ( ppstat entry, int identifier )
+{
+	float temp;
+	int c;
+	temp = entry->majflt_delta;
 	for ( c = 0; temp > 1000; c++ )
 	{
 		temp /= 1024;

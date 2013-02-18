@@ -53,7 +53,8 @@ repr fields[FIELDS_AVAILABLE] =
 	{ TIME, "%6d:%02d ", "%3d:%02d.%02d ", "%9s ", 10, "TIME+", print_time },
 	{ COMMAND, "%-15s ", "", "%-s ", 8, "COMMAND", print_name },
 	{ MINFLT, "%3lu%c ", "%4lu ", "%4s ", 5, "nMin", print_minflt },
-	{ MAJFLT, "%3lu%c ", "%4lu ", "%4s ", 5, "nMaj", print_majflt }
+	{ MAJFLT, "%3lu%c ", "%4lu ", "%4s ", 5, "nMaj", print_majflt },
+	{ MAJFLT_DELTA, "%3lu%c ", "%4lu ", "%4s ", 5, "dFLT", print_majflt_delta }
 };
 
 char suffixes[] = " kmgtp";
@@ -223,6 +224,7 @@ int main ( void )
 						stats_buffer->cpu_percent = 0;
 					}
 					*/
+					stats_buffer->majflt_delta = stats_buffer->majflt - current->majflt;
 					stats_buffer->state = state[0];
 					stats_buffer->sequence = sequence;
 					stats_buffer->next = current->next;
@@ -437,6 +439,17 @@ int compare_elements ( const void *first, const void *second )
 				retval = 1;
 			}
 			break;
+		case MAJFLT_DELTA:
+			if ( one->majflt_delta > two->majflt_delta )
+			{
+				retval = -1;
+			}
+			else if ( one->majflt_delta < two->majflt_delta )
+			{
+				retval = 1;
+			}
+			break;
+
 		default:
 			if ( one->cpu_percent > two->cpu_percent )
 			{
