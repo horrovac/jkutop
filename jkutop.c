@@ -55,7 +55,7 @@ repr fields[FIELDS_AVAILABLE] =
 	{ MINFLT, "%3lu%c ", "%4lu ", "%4s ", 5, "nMin", print_minflt },
 	{ MAJFLT, "%3lu%c ", "%4lu ", "%4s ", 5, "nMaj", print_majflt },
 	{ MAJFLT_DELTA, "%3lu%c ", "%4lu ", "%4s ", 5, "dFLT", print_majflt_delta },
-	{ SCPU, "%6.1f ", "", "%6s ", 7, "%SCPU", print_system_cpu_percent }
+	{ SYS, "%6.1f ", "", "%6s ", 7, "%SYS", print_system_cpu_percent }
 };
 
 char suffixes[] = " kmgtp";
@@ -451,7 +451,7 @@ int compare_elements ( const void *first, const void *second )
 				retval = 1;
 			}
 			break;
-		case SCPU:
+		case SYS:
 			if ( one->system_cpu_percent > two->system_cpu_percent )
 			{
 				retval = -1;

@@ -45,7 +45,7 @@ enum
 	MINFLT,
 	MAJFLT,
 	MAJFLT_DELTA,
-	SCPU,
+	SYS,
 	FIELDS_AVAILABLE	// not an identifier, # identifiers available
 };
 
