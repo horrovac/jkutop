@@ -54,7 +54,8 @@ repr fields[FIELDS_AVAILABLE] =
 	{ COMMAND, "%-15s ", "", "%-s ", 8, "COMMAND", print_name },
 	{ MINFLT, "%3lu%c ", "%4lu ", "%4s ", 5, "nMin", print_minflt },
 	{ MAJFLT, "%3lu%c ", "%4lu ", "%4s ", 5, "nMaj", print_majflt },
-	{ MAJFLT_DELTA, "%3lu%c ", "%4lu ", "%4s ", 5, "dFLT", print_majflt_delta }
+	{ MAJFLT_DELTA, "%3lu%c ", "%4lu ", "%4s ", 5, "dFLT", print_majflt_delta },
+	{ SCPU, "%6.1f ", "", "%6s ", 7, "%SCPU", print_system_cpu_percent }
 };
 
 char suffixes[] = " kmgtp";
@@ -217,6 +218,7 @@ int main ( void )
 					if ( ticks_passed > 0 )
 					{
 						stats_buffer->cpu_percent = (((stats_buffer->utime + stats_buffer->stime ) - (stats_buffer->utime_lastpass + stats_buffer->stime_lastpass )) / ticks_passed ) * 100;
+						stats_buffer->system_cpu_percent = ((stats_buffer->stime - stats_buffer->stime_lastpass ) / ticks_passed ) * 100;
 					}
 					/*
 					else
@@ -449,6 +451,17 @@ int compare_elements ( const void *first, const void *second )
 				retval = 1;
 			}
 			break;
+		case SCPU:
+			if ( one->system_cpu_percent > two->system_cpu_percent )
+			{
+				retval = -1;
+			}
+			else if ( one->system_cpu_percent < two->system_cpu_percent )
+			{
+				retval = 1;
+			}
+			break;
+
 
 		default:
 			if ( one->cpu_percent > two->cpu_percent )

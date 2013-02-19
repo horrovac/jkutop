@@ -45,6 +45,7 @@ enum
 	MINFLT,
 	MAJFLT,
 	MAJFLT_DELTA,
+	SCPU,
 	FIELDS_AVAILABLE	// not an identifier, # identifiers available
 };
 
@@ -66,6 +67,7 @@ typedef struct pidstat
 	unsigned long long	cutime;
 	unsigned long long	cstime;
 	double				cpu_percent;
+	double				system_cpu_percent;
 	long				priority;
 	long				niceness;
 	unsigned long		virt;
@@ -145,6 +147,7 @@ void print_name ( ppstat entry, int identifier );
 void print_minflt ( ppstat entry, int identifier );
 void print_majflt ( ppstat entry, int identifier );
 void print_majflt_delta ( ppstat entry, int identifier );
+void print_system_cpu_percent ( ppstat entry, int identifier );
 
 WINDOW *win;
 int row, col;

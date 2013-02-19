@@ -521,3 +521,8 @@ void print_majflt_delta ( ppstat entry, int identifier )
 		printw ( fields[identifier].format_alt, (long unsigned) temp );
 	}
 }
+
+void print_system_cpu_percent ( ppstat entry, int identifier )
+{
+	printw ( fields[identifier].format, entry->system_cpu_percent );
+}
