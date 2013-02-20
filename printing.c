@@ -137,6 +137,24 @@ int print_it ( ppstat *stats_array, int count )
 	return ( i + 1 );
 }
 
+int displayfield_shift_up ( int focus )
+{
+	int result = focus;
+	if ( focus == MAX_DISPLAY_FIELDS )
+	{
+		return ( 0 );
+	}
+	else if ( display_fields[focus] != NULL )
+	{
+		result = displayfield_shift_up ( focus + 1 );
+	}
+	if ( result != 0 )
+	{
+		display_fields[focus] = display_fields[focus-1];
+	}
+	return focus;
+}
+
 void modify_display ( void )
 {
 	int i;
@@ -161,6 +179,7 @@ void modify_display ( void )
 		mvwprintw ( mod_win,  0, 0, "Use arrow keys (or vim cursor keys) to navigate;" );
 		mvwprintw ( mod_win,  1, 0, "Set sort field (highlighted) with 's', order %s (change with 'r')", parametres.reversesort ? "ascending" : "descending" );
 		mvwprintw ( mod_win,  2, 0, "go down or press enter to change a field, select with space key");
+		mvwprintw ( mod_win,  3, 0, "'i' to insert a field, 'a' to append it");
 		wmove ( mod_win, 6, 0 );
 		for ( i = 0; i < 20; i++ )
 		{
@@ -219,11 +238,6 @@ void modify_display ( void )
 					focus++;
 				}
 				break;
-			case 'i':		/* insert a field */
-				for ( i = focus + 1; display_fields[i] != 0; i++ )
-				{
-				}
-				break;
 			case 's':
 			case 'S':
 				parametres.sortby = display_fields[focus]->identifier;
@@ -231,6 +245,23 @@ void modify_display ( void )
 			case 'r':
 			case 'R':
 				parametres.reversesort ^= 1;
+				break;
+			case 'i':		/* insert a field */
+				if ( displayfield_shift_up ( focus + 1 ) != 0 )
+				{
+					ungetch ( 'j' );
+				}
+				break;
+			case 'a':		/* append a field */
+				focus++;
+				if ( displayfield_shift_up ( focus ) != 0 )
+				{
+					ungetch ( 'j' );
+				}
+				else
+				{
+					focus--;
+				}
 				break;
 			case 'j':
 			case KEY_DOWN:

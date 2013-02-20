@@ -36,6 +36,10 @@ ppstat stats[HASH_TABLE_SIZE];
 ppstat *stats_array = NULL;
 pmstat memory;
 
+/*
+ Keep this in sync with the enum defining the identifiers, or you're gonna
+ have a very bad time
+*/
 repr fields[FIELDS_AVAILABLE] =
 {
 	{ PID, "%7d ", "", "%7s ", 8, "PID", print_pid },

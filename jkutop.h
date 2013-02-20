@@ -25,6 +25,7 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 #define BUFFSIZE 20480
 #define ALLOC_CHUNK 1000
 #define	HASH_TABLE_SIZE 1000
+#define MAX_DISPLAY_FIELDS 20
 
 enum
 {
@@ -152,4 +153,4 @@ void print_system_cpu_percent ( ppstat entry, int identifier );
 WINDOW *win;
 int row, col;
 params parametres;
-prepr display_fields[20];
+prepr display_fields[MAX_DISPLAY_FIELDS];
