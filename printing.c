@@ -155,6 +155,17 @@ int displayfield_shift_up ( int focus )
 	return focus;
 }
 
+int displayfield_shift_down ( int focus )
+{
+	display_fields[focus] = display_fields[focus + 1];
+	if ( display_fields[focus] != NULL )
+	{
+		displayfield_shift_down ( focus + 1 );
+	}
+	return focus;
+}
+
+
 void modify_display ( void )
 {
 	int i;
@@ -179,7 +190,7 @@ void modify_display ( void )
 		mvwprintw ( mod_win,  0, 0, "Use arrow keys (or vim cursor keys) to navigate;" );
 		mvwprintw ( mod_win,  1, 0, "Set sort field (highlighted) with 's', order %s (change with 'r')", parametres.reversesort ? "ascending" : "descending" );
 		mvwprintw ( mod_win,  2, 0, "go down or press enter to change a field, select with space key");
-		mvwprintw ( mod_win,  3, 0, "'i' to insert a field, 'a' to append it");
+		mvwprintw ( mod_win,  3, 0, "'i' to insert a field, 'a' to append it, 'd' to delete");
 		wmove ( mod_win, 6, 0 );
 		for ( i = 0; i < 20; i++ )
 		{
@@ -245,6 +256,9 @@ void modify_display ( void )
 			case 'r':
 			case 'R':
 				parametres.reversesort ^= 1;
+				break;
+			case 'd':
+					displayfield_shift_down ( focus );
 				break;
 			case 'i':		/* insert a field */
 				if ( displayfield_shift_up ( focus + 1 ) != 0 )
