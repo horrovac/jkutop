@@ -128,6 +128,7 @@ int clean_up ( int sequence );
 int read_meminfo ( mstat *meminfo );
 void init_fields ( void );
 ppstat get_record (	int pid );
+int save_config ( void );
 /* defined in printing.c */
 prepr select_field ( int y, int x, prepr current );
 void modify_display ( void );

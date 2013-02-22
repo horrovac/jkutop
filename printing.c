@@ -118,6 +118,9 @@ int print_it ( ppstat *stats_array, int count )
 	{
 		switch ( input )
 		{
+			case 'w':		/* save current configuration */
+				save_config();
+				break;
 			case 'q':
 				endwin();
 				exit ( 0 );

@@ -89,7 +89,7 @@ int main ( void )
 	int				c=0;
 	int				sequence=0;
 	int				chars_read;
-	unsigned long long		ticks = 0, ticks_before, user, nice, system, idle;
+	unsigned long long		ticks = 0, ticks_before;
 	pstat			*current = NULL;
 	//pstat			*temp = NULL;
 	pstat			*stats_buffer;
@@ -485,20 +485,135 @@ int compare_elements ( const void *first, const void *second )
 	return ( retval );
 }
 
+int save_config ( void )
+{
+	char *home;
+	char conffile[256];
+	int retval=0;
+	FILE *fp;
+	int i;
+	home = getenv ( "HOME" );
+	strcpy ( conffile, home );
+	strcat ( conffile, "/.jkutoprc" );
+	if ( ( fp = fopen ( conffile, "w" ) ) < 0 )
+	{
+		retval = fp;
+	}
+	else
+	{
+		fprintf ( fp, "%s ", "Fields:" );
+		for ( i = 0; i < MAX_DISPLAY_FIELDS; i++ )
+		{
+			if ( display_fields[i] == NULL )
+			{
+				break;
+			}
+			fprintf ( fp, "%s ", display_fields[i]->fieldname );
+		}
+		fprintf ( fp, "\n" );
+	}
+	fclose ( fp );
+	return ( retval );
+}
+
 void init_fields ( void )
 {
-	extern repr fields[];
-	/* initialise display fields */
-	display_fields[0] = &fields[PID];
-	display_fields[1] = &fields[USER];
-	display_fields[2] = &fields[PR];
-	display_fields[3] = &fields[NI];
-	display_fields[4] = &fields[VIRT];
-	display_fields[5] = &fields[RES];
-	display_fields[6] = &fields[S];
-	display_fields[7] = &fields[CPU];
-	display_fields[8] = &fields[MEM];
-	display_fields[9] = &fields[TIME];
-	display_fields[10] = &fields[COMMAND];
-	display_fields[12] = NULL;
+	char buffer[BUFFSIZE];
+	char *eolp=NULL;
+	char *bolp=NULL;
+	ssize_t read_chars=0;
+	int restsize = 0;
+	int fd;
+	char conffile[256];
+	char conffile_fields[MAX_DISPLAY_FIELDS][256];
+	char *home;
+	int i, j=0, fieldindex=0;
+	int got_config_from_conffile = 0;
+	//extern repr fields[];
+	home = getenv ( "HOME" );
+	strcpy ( conffile, home );
+	strcat ( conffile, "/.jkutoprc");
+	if ( ( fd = open ( conffile, O_RDONLY ) ) > 0  )
+	{
+		do
+		{
+			read_chars = read ( fd, buffer + restsize, sizeof ( buffer ) - restsize );
+			bolp = buffer;
+			while ( ( eolp = memchr ( bolp, '\n', BUFFSIZE - ( bolp - buffer ) ) ) != NULL)
+			{
+				eolp[0] = '\0';
+				eolp++;
+				if ( ! strncmp ( bolp, "Fields:", 7 ) )
+				{
+					sscanf ( bolp, "Fields: %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", 
+					conffile_fields[0],
+					conffile_fields[1],
+					conffile_fields[2],
+					conffile_fields[3],
+					conffile_fields[4],
+					conffile_fields[5],
+					conffile_fields[6],
+					conffile_fields[7],
+					conffile_fields[8],
+					conffile_fields[9],
+					conffile_fields[10],
+					conffile_fields[11],
+					conffile_fields[12],
+					conffile_fields[13],
+					conffile_fields[14],
+					conffile_fields[15],
+					conffile_fields[16],
+					conffile_fields[17],
+					conffile_fields[18],
+					conffile_fields[19]
+					 );
+					got_config_from_conffile = 1;
+				}
+				bolp = eolp;
+			}
+			/*
+			move the rest of the string to the beginning
+			*/
+			restsize = BUFFSIZE - ( bolp - buffer );
+			memmove ( buffer, bolp, restsize );
+		}
+		while ( read_chars > 0 );
+	
+		close ( fd );
+		while ( strcmp ( conffile_fields[j], "") )
+		{
+			for ( i = 0; i < FIELDS_AVAILABLE; i++ )
+			{
+				if ( ! strcmp ( conffile_fields[j], fields[i].fieldname ) )
+				{
+					display_fields[fieldindex] = &fields[i];
+					fieldindex++;
+				}
+			}
+			j++;
+			if ( j == MAX_DISPLAY_FIELDS )
+			{
+				break;
+			}
+		}
+		//exit ( 0 );
+
+	}
+
+	if ( got_config_from_conffile == 0 )
+	{
+		/* initialise display fields */
+		display_fields[0] = &fields[PID];
+		display_fields[1] = &fields[USER];
+		display_fields[2] = &fields[PR];
+		display_fields[3] = &fields[NI];
+		display_fields[4] = &fields[VIRT];
+		display_fields[5] = &fields[RES];
+		display_fields[6] = &fields[S];
+		display_fields[7] = &fields[CPU];
+		display_fields[8] = &fields[MEM];
+		display_fields[9] = &fields[TIME];
+		display_fields[10] = &fields[COMMAND];
+		display_fields[12] = NULL;
+	}
 }
