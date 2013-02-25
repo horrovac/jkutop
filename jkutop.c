@@ -465,8 +465,16 @@ int compare_elements ( const void *first, const void *second )
 				retval = 1;
 			}
 			break;
-
-
+		case MEM:
+			if ( one->res > two->res )
+			{
+				retval = -1;
+			}
+			else if ( one->res < two->res )
+			{
+				retval = 1;
+			}
+			break;
 		default:
 			if ( one->cpu_percent > two->cpu_percent )
 			{
@@ -497,10 +505,13 @@ int save_config ( void )
 	strcat ( conffile, "/.jkutoprc" );
 	if ( ( fp = fopen ( conffile, "w" ) ) < 0 )
 	{
-		retval = fp;
+		retval = -1;
 	}
 	else
 	{
+		fprintf ( fp, "#Config file generated automatically, will be overwritten on next save.\n" );
+		fprintf ( fp, "#Parser is not very robust, so if you edit this manually, better do it\n" );
+		fprintf ( fp, "#right. If you screw up (or to go back to defaults) delete this file\n" );
 		fprintf ( fp, "%s ", "Fields:" );
 		for ( i = 0; i < MAX_DISPLAY_FIELDS; i++ )
 		{
@@ -512,6 +523,17 @@ int save_config ( void )
 		}
 		fprintf ( fp, "\n" );
 	}
+	if ( parametres.sortby != CPU || parametres.reversesort != 0 )
+	{
+		fprintf ( fp, "%s ", "Sort:" );
+		fprintf ( fp, "%s ", fields[parametres.sortby].fieldname );
+		if ( parametres.reversesort > 0 )
+		{
+			fprintf ( fp, "asc" );
+		}
+		fprintf ( fp, "\n" );
+	}
+		
 	fclose ( fp );
 	return ( retval );
 }
@@ -525,6 +547,8 @@ void init_fields ( void )
 	int restsize = 0;
 	int fd;
 	char conffile[256];
+	char sort[256];
+	char order[256]="";
 	char conffile_fields[MAX_DISPLAY_FIELDS][256];
 	char *home;
 	int i, j=0, fieldindex=0;
@@ -543,6 +567,11 @@ void init_fields ( void )
 			{
 				eolp[0] = '\0';
 				eolp++;
+				if ( ! strncmp ( bolp, "#", 1 ) )
+				{
+					bolp = eolp;
+					continue;
+				}
 				if ( ! strncmp ( bolp, "Fields:", 7 ) )
 				{
 					sscanf ( bolp, "Fields: %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", 
@@ -568,6 +597,10 @@ void init_fields ( void )
 					conffile_fields[19]
 					 );
 					got_config_from_conffile = 1;
+				}
+				if ( ! strncmp ( bolp, "Sort:", 5 ) )
+				{
+					sscanf ( bolp, "Sort: %s %s", sort, order );
 				}
 				bolp = eolp;
 			}
@@ -596,6 +629,18 @@ void init_fields ( void )
 				break;
 			}
 		}
+		for ( i = 0; i < FIELDS_AVAILABLE; i++ )
+		{
+			if ( ! strcmp ( sort, fields[i].fieldname ) )
+			{
+				parametres.sortby = i;
+			}
+		}
+		if ( ! strcmp ( order, "asc" ) )
+		{
+			parametres.reversesort = 1;
+		}
+
 		//exit ( 0 );
 
 	}
