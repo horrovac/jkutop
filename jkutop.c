@@ -59,7 +59,8 @@ repr fields[FIELDS_AVAILABLE] =
 	{ MINFLT, "%3lu%c ", "%4lu ", "%4s ", 5, "nMin", print_minflt },
 	{ MAJFLT, "%3lu%c ", "%4lu ", "%4s ", 5, "nMaj", print_majflt },
 	{ MAJFLT_DELTA, "%3lu%c ", "%4lu ", "%4s ", 5, "dFLT", print_majflt_delta },
-	{ SYS, "%6.1f ", "", "%6s ", 7, "%SYS", print_system_cpu_percent }
+	{ SYS, "%6.1f ", "", "%6s ", 7, "%SYS", print_system_cpu_percent },
+	{ CPUSET, "%10s ", "", "%10s ", 11, "CPUSET", print_cpuset }
 };
 
 char suffixes[] = " kmgtp";
@@ -234,6 +235,7 @@ int main ( void )
 					stats_buffer->state = state[0];
 					stats_buffer->sequence = sequence;
 					stats_buffer->next = current->next;
+					read_cpuset ( stats_buffer, dir_entry->d_name );
 					memcpy ( current, stats_buffer, sizeof ( pstat ) );
 					//read_smaps ( current, dir_entry->d_name );
 					read_status ( current, dir_entry->d_name );

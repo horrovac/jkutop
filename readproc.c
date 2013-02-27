@@ -97,7 +97,7 @@ int read_status ( pstat *stats, char *pid )
 int read_smaps ( pstat *stats, char *pid )
 {
 	char buffer[BUFFSIZE];
-	char path[256];
+	char path[256] = "/proc/";
 	char *eolp=NULL;
 	char *bolp=NULL;
 	ssize_t read_chars=0;
@@ -109,8 +109,6 @@ int read_smaps ( pstat *stats, char *pid )
 	/*
 	fd = open ( argv[1], O_RDONLY );
 	*/
-	memset ( path, '\0', sizeof ( path ) );
-	strcat ( path, "/proc/" );
 	strcat ( path, pid );
 	strcat ( path, "/smaps" );
 	fd = open ( path, O_RDONLY );
@@ -155,6 +153,33 @@ int read_smaps ( pstat *stats, char *pid )
 	close ( fd );
 	return ( swap );
 }
+
+int read_cpuset ( pstat *stats, char *pid )
+{
+	int fd;
+	int read_chars;
+	int retval = 0;
+	char buffer[BUFFSIZE];
+	char path[256] = "/proc/";
+
+	strcat ( path, pid );
+	strcat ( path, "/cpuset" );
+
+	fd = open ( path, O_RDONLY );
+
+	if ( fd > 0 )
+	{
+		read_chars = read ( fd, buffer, sizeof ( buffer ) );
+		buffer[read_chars-1] = '\0'; /* erase teh newline */
+		strncpy ( stats->cpuset, buffer, CPUSET_NAME_LENGTH_MAX );
+	}
+	else
+	{
+		retval = fd;
+	}
+	return ( retval );
+}
+
 
 int read_meminfo ( mstat *meminfo )
 {

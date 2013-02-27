@@ -26,6 +26,7 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 #define ALLOC_CHUNK 1000
 #define	HASH_TABLE_SIZE 1000
 #define MAX_DISPLAY_FIELDS 20
+#define CPUSET_NAME_LENGTH_MAX 20
 
 enum
 {
@@ -47,6 +48,7 @@ enum
 	MAJFLT,
 	MAJFLT_DELTA,
 	SYS,
+	CPUSET,
 	FIELDS_AVAILABLE	// not an identifier, # identifiers available
 };
 
@@ -75,6 +77,7 @@ typedef struct pidstat
 	long				res;
 	int					swap[KEEPRECORDS];
 	int					swapchange;
+	char				cpuset[CPUSET_NAME_LENGTH_MAX];
 	int					sequence; /* used to recognise old entries for removal */
 	struct pidstat		*next;
 }pstat, *ppstat;
@@ -129,6 +132,7 @@ int read_meminfo ( mstat *meminfo );
 void init_fields ( void );
 ppstat get_record (	int pid );
 int save_config ( void );
+int read_cpuset ( pstat *stats, char *pid );
 /* defined in printing.c */
 prepr select_field ( int y, int x, prepr current );
 void modify_display ( void );
@@ -150,6 +154,7 @@ void print_minflt ( ppstat entry, int identifier );
 void print_majflt ( ppstat entry, int identifier );
 void print_majflt_delta ( ppstat entry, int identifier );
 void print_system_cpu_percent ( ppstat entry, int identifier );
+void print_cpuset ( ppstat entry, int identifier );
 
 WINDOW *win;
 int row, col;

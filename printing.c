@@ -574,3 +574,12 @@ void print_system_cpu_percent ( ppstat entry, int identifier )
 {
 	printw ( fields[identifier].format, entry->system_cpu_percent );
 }
+
+void print_cpuset ( ppstat entry, int identifier )
+{
+	char temp;
+	temp = entry->cpuset[9];
+	entry->cpuset[9] = '\n';
+	printw ( fields[identifier].format, entry->cpuset );
+	entry->cpuset[9] = temp;
+}
