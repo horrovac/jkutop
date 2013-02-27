@@ -60,7 +60,7 @@ repr fields[FIELDS_AVAILABLE] =
 	{ MAJFLT, "%3lu%c ", "%4lu ", "%4s ", 5, "nMaj", print_majflt },
 	{ MAJFLT_DELTA, "%3lu%c ", "%4lu ", "%4s ", 5, "dFLT", print_majflt_delta },
 	{ SYS, "%6.1f ", "", "%6s ", 7, "%SYS", print_system_cpu_percent },
-	{ CPUSET, "%10s ", "", "%10s ", 11, "CPUSET", print_cpuset }
+	{ CPUSET, "%20s ", "", "%20s ", 21, "CPUSET", print_cpuset }
 };
 
 char suffixes[] = " kmgtp";
@@ -111,6 +111,7 @@ int main ( void )
 
 	parametres.sortby = CPU;
 	parametres.reversesort = 0;
+	parametres.requested_fields = 0;
 	init_fields();
 
 	win = initscr();		/* ncurses initialisation */
@@ -235,7 +236,10 @@ int main ( void )
 					stats_buffer->state = state[0];
 					stats_buffer->sequence = sequence;
 					stats_buffer->next = current->next;
-					read_cpuset ( stats_buffer, dir_entry->d_name );
+					if ( parametres.requested_fields & 1 << CPUSET )
+					{
+						read_cpuset ( stats_buffer, dir_entry->d_name );
+					}
 					memcpy ( current, stats_buffer, sizeof ( pstat ) );
 					//read_smaps ( current, dir_entry->d_name );
 					read_status ( current, dir_entry->d_name );
@@ -622,6 +626,7 @@ void init_fields ( void )
 				if ( ! strcmp ( conffile_fields[j], fields[i].fieldname ) )
 				{
 					display_fields[fieldindex] = &fields[i];
+					parametres.requested_fields |= 1 << i;
 					fieldindex++;
 				}
 			}

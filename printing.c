@@ -195,7 +195,7 @@ void modify_display ( void )
 		mvwprintw ( mod_win,  2, 0, "go down or press enter to change a field, select with space key");
 		mvwprintw ( mod_win,  3, 0, "'i' to insert a field, 'a' to append it, 'd' to delete");
 		wmove ( mod_win, 6, 0 );
-		for ( i = 0; i < 20; i++ )
+		for ( i = 0; i < MAX_DISPLAY_FIELDS; i++ )
 		{
 			wattron ( mod_win, A_REVERSE );
 			if ( display_fields[i] == NULL )
@@ -301,6 +301,15 @@ void modify_display ( void )
 	halfdelay ( 30 );
 	werase( mod_win );
 	delwin( mod_win );
+	parametres.requested_fields = 0;
+	for ( i = 0; i < MAX_DISPLAY_FIELDS; i++ )
+	{
+		if ( display_fields[i] == NULL )
+		{
+			break;
+		}
+		parametres.requested_fields |= 1 << display_fields[i]->identifier;
+	}
 }
 
 
@@ -578,8 +587,8 @@ void print_system_cpu_percent ( ppstat entry, int identifier )
 void print_cpuset ( ppstat entry, int identifier )
 {
 	char temp;
-	temp = entry->cpuset[9];
-	entry->cpuset[9] = '\n';
+	temp = entry->cpuset[30];
+	entry->cpuset[30] = '\n';
 	printw ( fields[identifier].format, entry->cpuset );
-	entry->cpuset[9] = temp;
+	entry->cpuset[30] = temp;
 }

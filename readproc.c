@@ -172,6 +172,7 @@ int read_cpuset ( pstat *stats, char *pid )
 		read_chars = read ( fd, buffer, sizeof ( buffer ) );
 		buffer[read_chars-1] = '\0'; /* erase teh newline */
 		strncpy ( stats->cpuset, buffer, CPUSET_NAME_LENGTH_MAX );
+		close ( fd );
 	}
 	else
 	{

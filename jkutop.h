@@ -26,7 +26,7 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 #define ALLOC_CHUNK 1000
 #define	HASH_TABLE_SIZE 1000
 #define MAX_DISPLAY_FIELDS 20
-#define CPUSET_NAME_LENGTH_MAX 20
+#define CPUSET_NAME_LENGTH_MAX 256
 
 enum
 {
@@ -119,6 +119,7 @@ typedef struct parametres
 {
 	int		sortby;
 	int		reversesort;
+	long	requested_fields;
 }params;
 
 int compare_elements ( const void *first, const void *second );
