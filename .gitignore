@@ -5,10 +5,10 @@ Makefile
 Makefile.in
 aclocal*
 autom4te*
-config.guess
-config.h.in
-config.sub
+config.*
 configure
 depcomp
 install-sh
 missing
+.deps
+stamp-h1
