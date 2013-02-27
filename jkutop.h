@@ -119,8 +119,19 @@ typedef struct parametres
 {
 	int		sortby;
 	int		reversesort;
-	long	requested_fields;
+	long	requested_fields; /*bitmask, read comment below*/
 }params;
+
+/*
+ requested_fields is a bitmask built from field identifiers,
+ it enables us to avoid reading data in case their display is
+ not requested, thus speeding up the execution. The value are
+ 1's bitshifted by numerical value of the identifier, OR'ed
+ together. Adding "COMMAND" for instance:
+ paramtres.requested_fields |= 1 << COMMAND;
+ ...to find out if we're displaying this:
+ if ( parametres.requested_fields & 1 << COMMAND ) { ... }
+ */
 
 int compare_elements ( const void *first, const void *second );
 int process_filter ( const char *execname );
