@@ -67,9 +67,14 @@ int print_it ( ppstat *stats_array, int count )
 	move ( 6, 0 );
 	for ( j = 0; j < FIELDS_AVAILABLE; j++ )
 	{
+		attroff ( A_BOLD );
 		if ( display_fields[j] == NULL )
 		{
 			break;
+		}
+		if ( display_fields[j]->identifier == parametres.sortby )
+		{
+			attron ( A_BOLD );
 		}
 		printw ( display_fields[j]->header_format, display_fields[j]->fieldname );
 	}
@@ -317,29 +322,53 @@ prepr select_field ( int y, int x, prepr current )
 {
 	WINDOW *menu_win;
 	prepr retval = current;
-	int i;
+	int i, j;
+	int menu_height;
 	int c;
 	int highlight = 0;
+	extern  int row;
 
 	cbreak();
-	menu_win = newwin ( FIELDS_AVAILABLE + 2, MENU_WIDTH, y, x );
+	menu_height = FIELDS_AVAILABLE + 2;
+	if ( y + FIELDS_AVAILABLE + 2 > row )
+	{
+		menu_height =  row - y;
+	}
+	menu_win = newwin ( menu_height, MENU_WIDTH, y, x );
 	keypad ( menu_win, TRUE );
 	wborder ( menu_win, 0, 0, 0, 0, 0, 0, 0, 0 );
 
 	while ( 1 )
 	{
+		j = 0;
+		if ( highlight > menu_height - 3 )
+		{
+			j = highlight - ( menu_height - 3 );
+		}
 		for ( i = 0; i < FIELDS_AVAILABLE; i++ )
 		{
+			if ( i > menu_height - 3 )
+			{
+				break;
+			}
 			wattroff ( menu_win, A_REVERSE );
-			if ( i == highlight )
+			if ( j == highlight )
 			{
 				wattron ( menu_win, A_REVERSE );
 			}
-			mvwprintw ( menu_win, i+1, 2, "%12s", fields[i].fieldname );
+			/*
+			wattroff ( menu_win, A_INVIS );
+			if ( ! ( parametres.requested_fields & 1 << i ) )
+			{
+				wattron ( menu_win, A_INVIS );
+			}
+			*/
+			mvwprintw ( menu_win, i+1, 2, "%12s", fields[j].fieldname );
 			if ( current->identifier == fields[i].identifier )
 			{
 				wprintw ( menu_win, "*" );
 			}
+			j++;
 		}
 		wrefresh( menu_win );
 		c = getch();
