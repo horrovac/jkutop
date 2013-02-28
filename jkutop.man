@@ -1,0 +1,40 @@
+.\" MANPAGE FOR JKUTOP
+.TH JKUTOP "9" "Feb 2013" "JKUtop" "User Commands"
+.SH NAME
+JKUtop \- a rewrite of top
+.SH SYNOPSIS
+.B jkutop
+.SH DESCRIPTION
+.\" Add any additional description here
+.PP
+JKUtop is a rewrite of top geared towards speed, especially on big SMP systems. Apart from process filtering which excludes per-cpu kernel processes it also uses a hash table based memory structure in order to store and access process data quickly. It also has no functionality to display individual threads. Thanks to these measures it achieves a noticeable speedup on ridiculously large SMP systems compared to top from procps.
+.PP
+JKUtop has a couple of features we (HPC administrators) found useful, like cpuset or page faults delta. The interface uses ncurses to replicate the one known from top.
+.PP
+Currently there are no command line options, all modifications are done interactively. You can use any of:
+.TP
+\fBO, o, S, s, F or f\fR
+to enter the display modification mode. Then follow the instructions shown in the header area (this is still a work in progress and likely to change)
+.PP
+To save your current settings use
+.TP
+\fBw\fR
+This will save your settings to ~/.jkutoprc. If you want to go back to defaults, delete this file. 
+.SS "Exit status:"
+.TP
+0
+(irrelevantly).
+.SH AUTHOR
+Written by Faruk Kujundzic
+.SH "REPORTING BUGS"
+Report acctdb bugs to (and request features from) faruk.kujundzic@jku.at
+.SH COPYRIGHT
+Copyright \(co 2013 Faruk Kujundzic
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
+.br
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+.SH "SEE ALSO"
+The full documentation for
+.B jkutop
+is \fBNOT\fR maintained as a Texinfo manual. Move on, nothing to see there.

@@ -130,7 +130,7 @@ typedef struct parametres
  together. Adding "COMMAND" for instance:
  paramtres.requested_fields |= 1 << COMMAND;
  ...to find out if we're displaying this:
- if ( parametres.requested_fields & 1 << COMMAND ) { ... }
+ if ( ! parametres.requested_fields & 1 << COMMAND ) { ... }
  */
 
 int compare_elements ( const void *first, const void *second );
