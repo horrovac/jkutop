@@ -260,6 +260,7 @@ void modify_display ( void )
 			case 's':
 			case 'S':
 				parametres.sortby = display_fields[focus]->identifier;
+				goto end;
 				break;
 			case 'r':
 			case 'R':
