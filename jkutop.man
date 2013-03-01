@@ -20,14 +20,74 @@ To save your current settings use
 .TP
 \fBw\fR
 This will save your settings to ~/.jkutoprc. If you want to go back to defaults, delete this file. 
-.SS "Exit status:"
+.SH INTERFACE
+.PP
+Currently JKUtop allows you to selct among the following display fields:
 .TP
-0
-(irrelevantly).
-.SH AUTHOR
-Written by Faruk Kujundzic
+\fBPID\fR
+the process ID
+.TP
+\fBPPID\fR
+process parent ID
+.TP
+\fBUSER\fR
+username of process owner
+.TP
+\fBUID\fR
+user ID of process owner
+.TP
+\fBPR\fR
+process priority
+.TP
+\fBNI\fR
+process nice value
+.TP
+\fBVIRT\fR
+amount of virtual memory requested by the process
+.TP
+\fBRES\fR
+process resident set (i.e. the amount of actual physical RAM used
+.TP
+\fBS\fR
+process state
+.TP
+\fB%CPU\fR
+CPU usage percentage
+.TP
+\fB%MEM\fR
+memory usage percentage
+.TP
+\fBSWAP\fR
+amount of memory swapped out to disk - currently inactive as all methods that can be used to determine the actual amount of swap used (as opposed as simply calculating the difference between VIRT and RES, which does not really show swap usage) are impractical on big SMP systems.
+.TP
+\fBTIME+\fR
+the CPU time accumulated by the process
+.TP
+\fBCOMMAND\fR
+the command used to start the process
+.TP
+\fBnMin\fR
+number of minor page faults generated. This is what happens whenever a process really uses the memory that is alotted to it
+.TP
+\fBnMaj\fR
+number of major page faults. This happens every time a memory page is swapped out to disk. Thus, lots of major page faults indicate high swap usage. However the number is cumulative and a long-running process may show lots of major page faults even though this is not problematic. To identify heavily swapping processes use the major page fault delta display.
+.TP
+\fBdFLT\fR
+major page fault delta, the increase of faults since last update. Useful to find processes currently swapping.
+.TP
+\fB%SYS\fR
+percent CPU spent in kernel mode, the "system load". Processes showing high system load could potentially profit from optimisation.
+.TP
+\fBCPUSET\fR
+the cpuset the process is being executed in
+.PP
+The name of current sort field is shown in \fBbold\fR font. You can choose to have the processes sorted in ascending or descending order.
+.SH BUGS
+You can select any field as a sort field, even though some can't be sorted by and the sorting falls back to default (\fB%CPU\fR, descending).
 .SH "REPORTING BUGS"
 Report acctdb bugs to (and request features from) faruk.kujundzic@jku.at
+.SH AUTHOR
+Written by Faruk Kujundzic
 .SH COPYRIGHT
 Copyright \(co 2013 Faruk Kujundzic
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.

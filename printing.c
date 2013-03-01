@@ -28,14 +28,16 @@ extern repr fields[];
 
 int print_it ( ppstat *stats_array, int count )
 {
-	char input;
+	int input;
 	int i, j;
 	int hertz;
 	extern pmstat memory;
 	extern double ticks_passed;
 	double	total_ticks;
 	extern cstats cpu_stats[];
+	MEVENT event;
 
+	mousemask(ALL_MOUSE_EVENTS, NULL);
 	hertz = sysconf ( _SC_CLK_TCK );
 	total_ticks = ticks_passed * sysconf ( _SC_NPROCESSORS_ONLN );
 	keypad ( win, TRUE );
@@ -138,12 +140,71 @@ int print_it ( ppstat *stats_array, int count )
 			case 'F':
 				modify_display();
 				break;
+			case KEY_MOUSE:
+				if(getmouse(&event) == OK)
+				{
+					if ( event.bstate & BUTTON1_DOUBLE_CLICKED )
+					{
+						if ( event.y > 6 )
+						{
+							show_process_detail ( stats_array, event.y - 7 );
+						}
+					}
+				}
+				break;
 			default:
 				break;
 		}
 	}
 	return ( i + 1 );
 }
+
+int show_process_detail ( ppstat *stats_array, int member )
+{
+	WINDOW *detail_win;
+	char procname[256];
+	int input;
+
+	sprintf ( procname, "%d", stats_array[member]->pid );
+	read_cpuset ( stats_array[member], procname );
+
+	detail_win = newwin ( 21, 60, 1, 1 );
+	cbreak();
+	while ( 1 )
+	{
+		wborder ( detail_win, 0, 0, 0, 0, 0, 0, 0, 0 );
+		/* PID */
+		mvwprintw ( detail_win, 1, 1, "%-10s %20d", "PID", stats_array[member]->pid );
+		/* PPID */
+		mvwprintw ( detail_win, 2, 1, "%-10s %20d", "PPID", stats_array[member]->ppid );
+		/* PGRP */
+		mvwprintw ( detail_win, 3, 1, "%-10s %20d", "PGRP", stats_array[member]->pgrp );
+		/* SESSION */
+		mvwprintw ( detail_win, 4, 1, "%-10s %20d", "SessionID", stats_array[member]->session );
+		/* Threads */
+		mvwprintw ( detail_win, 5, 1, "%-10s %20ld", "#threads", stats_array[member]->num_threads );
+		/* Cpuset */
+		mvwprintw ( detail_win, 6, 1, "%-10s %20s", "Cpuset", stats_array[member]->cpuset );
+		/* nMaj */
+		mvwprintw ( detail_win, 7, 1, "%-10s %20d", "nMaj", stats_array[member]->majflt );
+		/* nMin */
+		mvwprintw ( detail_win, 8, 1, "%-10s %20d", "nMin", stats_array[member]->minflt );
+
+		wrefresh(detail_win);
+		input = getch();
+		switch (input)
+		{
+			default:
+				goto end;
+				break;
+		}
+	}
+	end: ;
+	halfdelay ( 30 );
+	return ( 0 );
+}
+
+
 
 int displayfield_shift_up ( int focus )
 {

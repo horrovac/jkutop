@@ -199,7 +199,7 @@ int main ( void )
 					continue;
 				}
 				buffer[chars_read+1] = '\0';
-				sscanf ( buffer, "%d (%[^)]) %c %d %*d %*d %*d %*d %*d %Lu %*d %Lu %*d %Lu %Lu %Ld %Ld %ld %ld %*d %*d %*d %lu %ld", &stats_buffer->pid, stats_buffer->name, state, &stats_buffer->ppid, &stats_buffer->minflt, &stats_buffer->majflt, &stats_buffer->utime, &stats_buffer->stime, &stats_buffer->cutime, &stats_buffer->cstime, &stats_buffer->priority, &stats_buffer->niceness, &stats_buffer->virt, &stats_buffer->res );
+				sscanf ( buffer, "%d (%[^)]) %c %d %d %d %d %*d %*d %Lu %*d %Lu %*d %Lu %Lu %Ld %Ld %ld %ld %ld %*d %*d %lu %ld", &stats_buffer->pid, stats_buffer->name, state, &stats_buffer->ppid, &stats_buffer->pgrp, &stats_buffer->session, &stats_buffer->tty_nr, &stats_buffer->minflt, &stats_buffer->majflt, &stats_buffer->utime, &stats_buffer->stime, &stats_buffer->cutime, &stats_buffer->cstime, &stats_buffer->priority, &stats_buffer->niceness, &stats_buffer->num_threads, &stats_buffer->virt, &stats_buffer->res );
 				if ( ! process_filter ( stats_buffer->name ) )
 				{
 					/*

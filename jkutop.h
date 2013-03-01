@@ -54,12 +54,15 @@ enum
 
 typedef struct pidstat
 {
+	int					pid;
 	char				name[256];
 	char				state;
+	int					ppid;
+	int					pgrp;
+	int					session;
+	int					tty_nr;
 	int					uid;
 	int					euid;
-	int					pid;
-	int					ppid;
 	unsigned long long	majflt;
 	int					majflt_delta;
 	unsigned long long	minflt;
@@ -71,6 +74,7 @@ typedef struct pidstat
 	unsigned long long	cstime;
 	double				cpu_percent;
 	double				system_cpu_percent;
+	long				num_threads;
 	long				priority;
 	long				niceness;
 	unsigned long		virt;
@@ -167,6 +171,7 @@ void print_majflt ( ppstat entry, int identifier );
 void print_majflt_delta ( ppstat entry, int identifier );
 void print_system_cpu_percent ( ppstat entry, int identifier );
 void print_cpuset ( ppstat entry, int identifier );
+int show_process_detail ( ppstat *stats_array, int member );
 
 WINDOW *win;
 int row, col;
