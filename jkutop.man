@@ -9,7 +9,7 @@ JKUtop \- a rewrite of top
 .PP
 JKUtop is a rewrite of top geared towards speed, especially on big SMP systems. Apart from process filtering which excludes per-cpu kernel processes it also uses a hash table based memory structure in order to store and access process data quickly. It also has no functionality to display individual threads. Thanks to these measures it achieves a noticeable speedup on ridiculously large SMP systems compared to top from procps.
 .PP
-JKUtop has a couple of features we (HPC administrators) found useful, like cpuset or page faults delta. The interface uses ncurses to replicate the one known from top.
+JKUtop has a couple of features we (HPC administrators) found useful, like cpuset or page faults delta. The interface uses ncurses to replicate the one known from top. There is also some level of support for mouse control.
 .PP
 Currently there are no command line options, all modifications are done interactively. You can use any of:
 .TP
@@ -22,7 +22,7 @@ To save your current settings use
 This will save your settings to ~/.jkutoprc. If you want to go back to defaults, delete this file. 
 .SH INTERFACE
 .PP
-Currently JKUtop allows you to selct among the following display fields:
+Currently JKUtop allows you to select among the following display fields:
 .TP
 \fBPID\fR
 the process ID
@@ -82,6 +82,10 @@ percent CPU spent in kernel mode, the "system load". Processes showing high syst
 the cpuset the process is being executed in
 .PP
 The name of current sort field is shown in \fBbold\fR font. You can choose to have the processes sorted in ascending or descending order.
+.SH MOUSE OPERATION
+JKUtop offers some support for mouse control. Doubleclicking a task in the taks display will bring up a screen with additional information about it, clicking again (or pressing any key) will close it again.
+.PP
+Double-clicking a display column name in the header will make it the new sort field. Double-clicking a column which is already the sort field will toggle between descending and ascending order.
 .SH BUGS
 You can select any field as a sort field, even though some can't be sorted by and the sorting falls back to default (\fB%CPU\fR, descending).
 .SH "REPORTING BUGS"

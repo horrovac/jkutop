@@ -17,7 +17,6 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <stdio.h>
 #include <time.h>
-#include <sys/types.h>
 #include "jkutop.h"
 
 #define MENU_WIDTH 16
@@ -149,6 +148,10 @@ int print_it ( ppstat *stats_array, int count )
 						{
 							show_process_detail ( stats_array, event.y - 7 );
 						}
+						else if ( event.y == 6 )
+						{
+							mouse_select_sortfield ( event.x );
+						}
 					}
 				}
 				break;
@@ -159,36 +162,80 @@ int print_it ( ppstat *stats_array, int count )
 	return ( i + 1 );
 }
 
+int mouse_select_sortfield ( int x )
+{
+	int i;
+	int reach = 0;
+	for ( i = 0; i < FIELDS_AVAILABLE; i++ )
+	{
+		if ( display_fields[i] == NULL )
+		{
+			break;
+		}
+		reach += display_fields[i]->field_length;
+		if ( reach > x )
+		{
+			/*we're on this field */
+			if ( parametres.sortby == display_fields[i]->identifier )
+			{
+				/* if we're already sorting by this field, switch
+				   the sort order
+				 */
+				 parametres.reversesort ^= 1;
+			}
+			else
+			{
+				/* otherwise set this as sortfield and descending order */
+				parametres.sortby = display_fields[i]->identifier;
+				parametres.reversesort = 0;
+			}
+			break;
+		}
+	}
+	return ( 0 );
+}
+
 int show_process_detail ( ppstat *stats_array, int member )
 {
 	WINDOW *detail_win;
 	char procname[256];
 	int input;
+	struct passwd *pwentry;
+	struct group	*grentry;
 
 	sprintf ( procname, "%d", stats_array[member]->pid );
 	read_cpuset ( stats_array[member], procname );
 
+	pwentry = getpwuid ( stats_array[member]->uid );
+	grentry = getgrgid ( pwentry->pw_gid );
 	detail_win = newwin ( 21, 60, 1, 1 );
 	cbreak();
 	while ( 1 )
 	{
 		wborder ( detail_win, 0, 0, 0, 0, 0, 0, 0, 0 );
+		/* UID */
+		mvwprintw ( detail_win, 1, 1, "%-10s %15d, %s (%s)", "UID", stats_array[member]->uid, pwentry->pw_name, pwentry->pw_gecos );
+		/* GID */
+		mvwprintw ( detail_win, 2, 1, "%-10s %15d, %s", "GID", grentry->gr_gid, grentry->gr_name );
 		/* PID */
-		mvwprintw ( detail_win, 1, 1, "%-10s %20d", "PID", stats_array[member]->pid );
+		mvwprintw ( detail_win, 3, 1, "%-10s %15d", "PID", stats_array[member]->pid );
 		/* PPID */
-		mvwprintw ( detail_win, 2, 1, "%-10s %20d", "PPID", stats_array[member]->ppid );
+		mvwprintw ( detail_win, 4, 1, "%-10s %15d", "PPID", stats_array[member]->ppid );
 		/* PGRP */
-		mvwprintw ( detail_win, 3, 1, "%-10s %20d", "PGRP", stats_array[member]->pgrp );
+		mvwprintw ( detail_win, 5, 1, "%-10s %15d", "PGRP", stats_array[member]->pgrp );
 		/* SESSION */
-		mvwprintw ( detail_win, 4, 1, "%-10s %20d", "SessionID", stats_array[member]->session );
+		mvwprintw ( detail_win, 6, 1, "%-10s %15d", "SessionID", stats_array[member]->session );
 		/* Threads */
-		mvwprintw ( detail_win, 5, 1, "%-10s %20ld", "#threads", stats_array[member]->num_threads );
+		mvwprintw ( detail_win, 7, 1, "%-10s %15ld", "#threads", stats_array[member]->num_threads );
 		/* Cpuset */
-		mvwprintw ( detail_win, 6, 1, "%-10s %20s", "Cpuset", stats_array[member]->cpuset );
+		mvwprintw ( detail_win, 8, 1, "%-10s %15s", "Cpuset", stats_array[member]->cpuset );
 		/* nMaj */
-		mvwprintw ( detail_win, 7, 1, "%-10s %20d", "nMaj", stats_array[member]->majflt );
+		mvwprintw ( detail_win, 9, 1, "%-10s %15d", "nMaj", stats_array[member]->majflt );
 		/* nMin */
-		mvwprintw ( detail_win, 8, 1, "%-10s %20d", "nMin", stats_array[member]->minflt );
+		mvwprintw ( detail_win, 10, 1, "%-10s %15d", "nMin", stats_array[member]->minflt );
+		/* instructions */
+		mvwprintw ( detail_win, 19, 12, "Click or press any key to close" );
+		/* instructions */
 
 		wrefresh(detail_win);
 		input = getch();

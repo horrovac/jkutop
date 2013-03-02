@@ -17,7 +17,9 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <sys/time.h>
 #include <ncurses.h>
+#include <sys/types.h>
 #include <pwd.h>
+#include <grp.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -172,6 +174,7 @@ void print_majflt_delta ( ppstat entry, int identifier );
 void print_system_cpu_percent ( ppstat entry, int identifier );
 void print_cpuset ( ppstat entry, int identifier );
 int show_process_detail ( ppstat *stats_array, int member );
+int mouse_select_sortfield ( int x );
 
 WINDOW *win;
 int row, col;
