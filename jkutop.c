@@ -42,25 +42,25 @@ pmstat memory;
 */
 repr fields[FIELDS_AVAILABLE] =
 {
-	{ PID, "%7d ", "", "%7s ", 8, "PID", print_pid },
-	{ PPID, "%7d ", "", "%7s ", 8, "PPID", print_ppid },
-	{ USER, "%8s ", "", "%-8s ", 9, "USER", print_user },
-	{ UID, "%6d ", "", "%6s ", 7, "UID", print_uid },
-	{ PR, "%2s ", "%2ld ", "%2s ", 3, "PR", print_priority },
-	{ NI, "%3ld ", "", "%3s ", 4, "NI", print_niceness },
-	{ VIRT, "%4ld%c ", "%5ld ", "%5s ", 6, "VIRT", print_virt },
-	{ RES, "%3lu%c ", "%4lu ", "%4s ", 5, "RES", print_res },
-	{ S, "%c ", "", "%1s ", 2, "S", print_status },
-	{ CPU, "%6.1f ", "", "%6s ", 7, "%CPU", print_cpu_percent },
-	{ MEM, "%4.1f ", "", "%4s ", 5, "%MEM", print_mem_percent },
-	{ SWAP, "%4d%c ", "%5d ", "%4s ", 5, "SWAP", print_swap },
-	{ TIME, "%6d:%02d ", "%3d:%02d.%02d ", "%9s ", 10, "TIME+", print_time },
-	{ COMMAND, "%-15s ", "", "%-s ", 8, "COMMAND", print_name },
-	{ MINFLT, "%3lu%c ", "%4lu ", "%4s ", 5, "nMin", print_minflt },
-	{ MAJFLT, "%3lu%c ", "%4lu ", "%4s ", 5, "nMaj", print_majflt },
-	{ MAJFLT_DELTA, "%3lu%c ", "%4lu ", "%4s ", 5, "dFLT", print_majflt_delta },
-	{ SYS, "%6.1f ", "", "%6s ", 7, "%SYS", print_system_cpu_percent },
-	{ CPUSET, "%20s ", "", "%20s ", 21, "CPUSET", print_cpuset }
+	{ PID, "%7d ", "", "%7s ", 8, 1, "PID", print_pid },
+	{ PPID, "%7d ", "", "%7s ", 8, 0, "PPID", print_ppid },
+	{ USER, "%8s ", "", "%-8s ", 9, 0, "USER", print_user },
+	{ UID, "%6d ", "", "%6s ", 7, 0, "UID", print_uid },
+	{ PR, "%2s ", "%2ld ", "%2s ", 3, 0, "PR", print_priority },
+	{ NI, "%3ld ", "", "%3s ", 4, 0, "NI", print_niceness },
+	{ VIRT, "%4ld%c ", "%5ld ", "%5s ", 6, 1, "VIRT", print_virt },
+	{ RES, "%3lu%c ", "%4lu ", "%4s ", 5, 1, "RES", print_res },
+	{ S, "%c ", "", "%1s ", 2, 0, "S", print_status },
+	{ CPU, "%6.1f ", "", "%6s ", 7, 1, "%CPU", print_cpu_percent },
+	{ MEM, "%4.1f ", "", "%4s ", 5, 1, "%MEM", print_mem_percent },
+	{ SWAP, "%4d%c ", "%5d ", "%4s ", 5, 1, "SWAP", print_swap },
+	{ TIME, "%6d:%02d ", "%3d:%02d.%02d ", "%9s ", 10, 0, "TIME+", print_time },
+	{ COMMAND, "%-15s ", "", "%-s ", 8, 0, "COMMAND", print_name },
+	{ MINFLT, "%3lu%c ", "%4lu ", "%4s ", 5, 1, "nMin", print_minflt },
+	{ MAJFLT, "%3lu%c ", "%4lu ", "%4s ", 5, 1, "nMaj", print_majflt },
+	{ MAJFLT_DELTA, "%3lu%c ", "%4lu ", "%4s ", 5, 1, "dFLT", print_majflt_delta },
+	{ SYS, "%6.1f ", "", "%6s ", 7, 1, "%SYS", print_system_cpu_percent },
+	{ CPUSET, "%20s ", "", "%20s ", 21, 0, "CPUSET", print_cpuset }
 };
 
 char suffixes[] = " kmgtp";

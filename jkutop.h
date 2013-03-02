@@ -117,6 +117,7 @@ typedef struct representation
 	char	format_alt[20];
 	char	header_format[20];
 	int		field_length;
+	int		sortable;
 	char	fieldname[20];
 	void	(*printout)(ppstat entry, int identifier);
 }repr, *prepr;

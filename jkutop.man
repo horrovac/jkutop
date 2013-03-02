@@ -87,7 +87,7 @@ JKUtop offers some support for mouse control. Doubleclicking a task in the taks 
 .PP
 Double-clicking a display column name in the header will make it the new sort field. Double-clicking a column which is already the sort field will toggle between descending and ascending order.
 .SH BUGS
-You can select any field as a sort field, even though some can't be sorted by and the sorting falls back to default (\fB%CPU\fR, descending).
+Certainly many.
 .SH "REPORTING BUGS"
 Report acctdb bugs to (and request features from) faruk.kujundzic@jku.at
 .SH AUTHOR

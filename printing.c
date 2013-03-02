@@ -176,7 +176,18 @@ int mouse_select_sortfield ( int x )
 		if ( reach > x )
 		{
 			/*we're on this field */
-			if ( parametres.sortby == display_fields[i]->identifier )
+			if ( display_fields[i]->sortable == 0 )
+			{
+				/* we can't sort by this field */
+				printf ( "\a" );
+				attron ( A_REVERSE );
+				mvprintw ( 5, 0, "%-79s", "Sorry, can't sort by this field!" );
+				attroff ( A_REVERSE );
+				refresh();
+				sleep ( 1 );
+				break;
+			}
+			else if ( parametres.sortby == display_fields[i]->identifier )
 			{
 				/* if we're already sorting by this field, switch
 				   the sort order
@@ -367,8 +378,18 @@ void modify_display ( void )
 				break;
 			case 's':
 			case 'S':
-				parametres.sortby = display_fields[focus]->identifier;
-				goto end;
+				if (  display_fields[focus]->sortable == 1 )
+				{
+				 	parametres.sortby = display_fields[focus]->identifier;
+					goto end;
+				}
+				else
+				{
+					printf ( "\a" );
+					mvwprintw ( mod_win,  5, 0, "%-79s", "Sorry, can't sort by this field");
+					wrefresh ( mod_win );
+					sleep ( 1 );
+				}
 				break;
 			case 'r':
 			case 'R':
