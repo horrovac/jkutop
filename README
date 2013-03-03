@@ -1,0 +1,18 @@
+INSTALLING
+	Run sh autogen.sh to install the autotools files,
+	./configure
+	make
+	make install (or just run ./jkutop)
+
+WHY?
+	I'm a sysadmin of a large SMP system. The performance of
+	top from procps on such a machine (usually running around 30000
+	processes, lot of which potentially run hundreds of threads) caused
+	user complaints. Figuring out how top works in order to speed it up
+	had me writing code to replicate parts of the functionality, and
+	then some more, until it snowballed into a fairly practicable clone
+	of top. It is essentially an internal tool with features my
+	colleagues and I find nifty and useful.
+
+LICENCE
+	GPLv3
