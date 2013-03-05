@@ -127,6 +127,7 @@ typedef struct parametres
 	int		sortby;
 	int		reversesort;
 	long	requested_fields; /*bitmask, read comment below*/
+	char	progname[256];
 }params;
 
 /*
@@ -148,10 +149,11 @@ int sort_entries ( void );
 int print_it ( ppstat *stats_array, int count );
 int clean_up ( int sequence );
 int read_meminfo ( mstat *meminfo );
-void init_fields ( void );
 ppstat get_record (	int pid );
-int save_config ( void );
 int read_cpuset ( pstat *stats, char *pid );
+int save_config ( void );
+void init_fields ( void );
+void get_my_name ( char *argv );
 /* defined in printing.c */
 prepr select_field ( int y, int x, prepr current );
 void modify_display ( void );
