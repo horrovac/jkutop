@@ -86,6 +86,8 @@ The name of current sort field is shown in \fBbold\fR font. You can choose to ha
 JKUtop offers some support for mouse control. Doubleclicking a task in the taks display will bring up a screen with additional information about it, clicking again (or pressing any key) will close it again.
 .PP
 Double-clicking a display column name in the header will make it the new sort field. Double-clicking a column which is already the sort field will toggle between descending and ascending order.
+.SH SELECTING/COPYING TEXT
+Hold down shift key to enable normal mouse operation for click-and-drag or multiple-click selection and copying. Ncurses mouse support masks mouse operations, using shift enables them again.
 .SH BUGS
 Certainly many.
 .SH "REPORTING BUGS"
