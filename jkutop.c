@@ -112,6 +112,7 @@ int main ( int argc, char **argv )
 	parametres.sortby = CPU;
 	parametres.reversesort = 0;
 	parametres.requested_fields = 0;
+	parametres.hertz = sysconf ( _SC_CLK_TCK );
 
 	/* sets parametres.progname to the name we were called with */
 	get_my_name ( argv[0] ); 

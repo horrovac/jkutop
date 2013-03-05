@@ -29,7 +29,6 @@ int print_it ( ppstat *stats_array, int count )
 {
 	int input;
 	int i, j;
-	int hertz;
 	extern pmstat memory;
 	extern double ticks_passed;
 	double	total_ticks;
@@ -37,7 +36,6 @@ int print_it ( ppstat *stats_array, int count )
 	MEVENT event;
 
 	mousemask(ALL_MOUSE_EVENTS, NULL);
-	hertz = sysconf ( _SC_CLK_TCK );
 	total_ticks = ticks_passed * sysconf ( _SC_NPROCESSORS_ONLN );
 	keypad ( win, TRUE );
 	erase();
@@ -299,7 +297,8 @@ void modify_display ( void )
 	int focus = 0;
 	int c;
 	int x,y;
-	int maxx,maxy;
+	int maxx;
+	int maxy __attribute((unused));
 	int ll_focus_y = 0;
 	int ll_focus_x = 0;
 	WINDOW *mod_win;
@@ -660,7 +659,7 @@ void print_time ( ppstat entry, int identifier )
 {
 	long miliseconds;
 	int ms, sec, min;
-	miliseconds = ( ( entry->utime + entry->stime ) / (float) sysconf ( _SC_CLK_TCK ) ) * 100;
+	miliseconds = ( ( entry->utime + entry->stime ) / (float) parametres.hertz ) * 100;
 	ms = miliseconds % 100;
 	miliseconds /= 100;
 	sec = miliseconds % 60;

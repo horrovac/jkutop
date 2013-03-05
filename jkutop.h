@@ -127,6 +127,7 @@ typedef struct parametres
 	int		sortby;
 	int		reversesort;
 	long	requested_fields; /*bitmask, read comment below*/
+	int		hertz;	/* system clock frequency */
 	char	progname[256];
 }params;
 
