@@ -19,7 +19,7 @@ to enter the display modification mode. Then follow the instructions shown in th
 To save your current settings use
 .TP
 \fBw\fR
-This will save your settings to ~/.jkutoprc. If you want to go back to defaults, delete this file. 
+This will save your settings to ~/.jkutoprc. If you want to go back to defaults, delete this file. If you are calling jkutop by another name (say by symlinking it or renaming the executable), the configuration file will be called by that name. This enables having several different configurations for the same program. If you symlink jkutop as 'jktop-custom' and write the configuration, it will land in .jkutop-customrc and be loaded the next time you start it with that name.
 .SH INTERFACE
 .PP
 Currently JKUtop allows you to select among the following display fields:
