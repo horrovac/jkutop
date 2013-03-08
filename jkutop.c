@@ -60,7 +60,8 @@ repr fields[FIELDS_AVAILABLE] =
 	{ MAJFLT, "%3lu%c ", "%4lu ", "%4s ", 5, 1, "nMaj", print_majflt },
 	{ MAJFLT_DELTA, "%3lu%c ", "%4lu ", "%4s ", 5, 1, "dFLT", print_majflt_delta },
 	{ SYS, "%6.1f ", "", "%6s ", 7, 1, "%SYS", print_system_cpu_percent },
-	{ CPUSET, "%20s ", "", "%20s ", 21, 0, "CPUSET", print_cpuset }
+	{ CPUSET, "%20s ", "", "%20s ", 21, 0, "CPUSET", print_cpuset },
+	{ NTHR, "%4d ", "", "%4s ", 5, 1, "nTHR", print_nthr }
 };
 
 char suffixes[] = " kmgtp";
@@ -470,6 +471,16 @@ int compare_elements ( const void *first, const void *second )
 				retval = -1;
 			}
 			else if ( one->res < two->res )
+			{
+				retval = 1;
+			}
+			break;
+		case NTHR:
+			if ( one->num_threads > two->num_threads )
+			{
+				retval = -1;
+			}
+			else if ( one->num_threads < two->num_threads )
 			{
 				retval = 1;
 			}

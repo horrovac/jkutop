@@ -750,3 +750,8 @@ void print_cpuset ( ppstat entry, int identifier )
 	printw ( fields[identifier].format, entry->cpuset );
 	entry->cpuset[30] = temp;
 }
+
+void print_nthr ( ppstat entry, int identifier )
+{
+	printw ( fields[identifier].format, entry->num_threads );
+}

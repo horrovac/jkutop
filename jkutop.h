@@ -51,6 +51,7 @@ enum
 	MAJFLT_DELTA,
 	SYS,
 	CPUSET,
+	NTHR,
 	FIELDS_AVAILABLE	// not an identifier, # identifiers available
 };
 
@@ -177,6 +178,7 @@ void print_majflt ( ppstat entry, int identifier );
 void print_majflt_delta ( ppstat entry, int identifier );
 void print_system_cpu_percent ( ppstat entry, int identifier );
 void print_cpuset ( ppstat entry, int identifier );
+void print_nthr ( ppstat entry, int identifier );
 int show_process_detail ( ppstat *stats_array, int member );
 int mouse_select_sortfield ( int x );
 
