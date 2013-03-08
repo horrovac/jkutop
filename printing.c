@@ -30,27 +30,26 @@ int print_it ( ppstat *stats_array, int count )
 	int input;
 	int i, j;
 	extern pmstat memory;
-	extern double ticks_passed;
 	double	total_ticks;
-	extern cstats cpu_stats[];
 	MEVENT event;
 
 	mousemask(ALL_MOUSE_EVENTS, NULL);
-	total_ticks = ticks_passed * sysconf ( _SC_NPROCESSORS_ONLN );
+	total_ticks = parametres.ticks_passed * sysconf ( _SC_NPROCESSORS_ONLN );
 	keypad ( win, TRUE );
 	erase();
 
-	if ( cpu_stats[1].user > 0 )
+	if ( parametres.cpu_stats[1].user > 0 )
 	{
+		mvprintw ( 1, 0, "System booted at %s", ctime ( &parametres.boottime ) );
 		mvprintw ( 2, 0, "Cpu(s):%5.1f us,%5.1f sy,%5.1f ni,%5.1f id,%5.1f wa,%5.1f hi,%5.1f si,%5.1f st",
-		((cpu_stats[0].user - cpu_stats[1].user)/total_ticks) * 100,
-	 	((cpu_stats[0].system - cpu_stats[1].system)/total_ticks) * 100,
-		((cpu_stats[0].nice - cpu_stats[1].nice)/total_ticks) * 100 ,
-		((cpu_stats[0].idle - cpu_stats[1].idle)/total_ticks) * 100 ,
-		((cpu_stats[0].iowait - cpu_stats[1].iowait)/total_ticks) * 100,
-		((cpu_stats[0].irq - cpu_stats[1].irq)/total_ticks) * 100,
-		((cpu_stats[0].softirq - cpu_stats[1].softirq)/total_ticks) * 100,
-		((cpu_stats[0].steal - cpu_stats[1].steal)/total_ticks) * 100 );
+		((parametres.cpu_stats[0].user - parametres.cpu_stats[1].user)/total_ticks) * 100,
+	 	((parametres.cpu_stats[0].system - parametres.cpu_stats[1].system)/total_ticks) * 100,
+		((parametres.cpu_stats[0].nice - parametres.cpu_stats[1].nice)/total_ticks) * 100 ,
+		((parametres.cpu_stats[0].idle - parametres.cpu_stats[1].idle)/total_ticks) * 100 ,
+		((parametres.cpu_stats[0].iowait - parametres.cpu_stats[1].iowait)/total_ticks) * 100,
+		((parametres.cpu_stats[0].irq - parametres.cpu_stats[1].irq)/total_ticks) * 100,
+		((parametres.cpu_stats[0].softirq - parametres.cpu_stats[1].softirq)/total_ticks) * 100,
+		((parametres.cpu_stats[0].steal - parametres.cpu_stats[1].steal)/total_ticks) * 100 );
 	}
 	else
 	{

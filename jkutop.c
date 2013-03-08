@@ -65,7 +65,6 @@ repr fields[FIELDS_AVAILABLE] =
 };
 
 char suffixes[] = " kmgtp";
-cstats	cpu_stats[2];
 
 /* signal handler functions */
 void dummy ( int useless ){};
@@ -91,7 +90,6 @@ int main ( int argc, char **argv )
 	int				c=0;
 	int				sequence=0;
 	int				chars_read;
-	unsigned long long		ticks = 0, ticks_before;
 	pstat			*current = NULL;
 	//pstat			*temp = NULL;
 	pstat			*stats_buffer;
@@ -145,22 +143,14 @@ int main ( int argc, char **argv )
 		return 0;
 	}
 
+	/* read when the system was booted */
+	read_btime ( procstat );
+
 	while ( 1 )
 	{
 		/* get number of ticks passed since last pass */
-		lseek ( procstat, 0, SEEK_SET );
-		if ( read ( procstat, buffer, 256 ) )
-		{
-			ticks_before = ticks;
-			memcpy ( &cpu_stats[1], &cpu_stats[0], sizeof ( cstats ) );
-			sscanf ( buffer, "%*s %llu %llu %llu %llu %llu %llu %llu %llu", &cpu_stats[0].user, &cpu_stats[0].nice, &cpu_stats[0].system, &cpu_stats[0].idle, &cpu_stats[0].iowait, &cpu_stats[0].irq, &cpu_stats[0].softirq, &cpu_stats[0].steal );
-			ticks = cpu_stats[0].user + cpu_stats[0].nice + cpu_stats[0].system + cpu_stats[0].idle;
-			if ( ticks_before != 0 )
-			{
-				ticks_passed = ( ticks - ticks_before ) / sysconf ( _SC_NPROCESSORS_ONLN );
-			}
-		}
-
+		read_proc_stat ( procstat );
+		
 		/* read the memory info */
 		read_meminfo ( memory );
 		rewinddir ( dirp );

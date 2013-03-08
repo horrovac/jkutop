@@ -129,7 +129,11 @@ typedef struct parametres
 	int		reversesort;
 	long	requested_fields; /*bitmask, read comment below*/
 	int		hertz;	/* system clock frequency */
+	cstats	cpu_stats[2];
+	unsigned long long	ticks_lastpass;
+	double	ticks_passed;	/* ticks passed between updates */
 	char	progname[256];
+	time_t	boottime;
 }params;
 
 /*
@@ -143,20 +147,26 @@ typedef struct parametres
  if ( ! parametres.requested_fields & 1 << COMMAND ) { ... }
  */
 
+/* defined in jkutop.c */
 int compare_elements ( const void *first, const void *second );
 int process_filter ( const char *execname );
+int clean_up ( int sequence );
+void get_my_name ( char *argv );
+ppstat get_record (	int pid );
+void init_fields ( void );
+
+/* defined in readproc.c */
 int read_status ( pstat *stats, char *pid );
 int read_smaps ( pstat *stats, char *pid );
 int sort_entries ( void );
-int print_it ( ppstat *stats_array, int count );
-int clean_up ( int sequence );
+int read_proc_stat ( int procstat );
+int read_btime ( int procstat );
 int read_meminfo ( mstat *meminfo );
-ppstat get_record (	int pid );
 int read_cpuset ( pstat *stats, char *pid );
-int save_config ( void );
-void init_fields ( void );
-void get_my_name ( char *argv );
+
 /* defined in printing.c */
+int print_it ( ppstat *stats_array, int count );
+int save_config ( void );
 prepr select_field ( int y, int x, prepr current );
 void modify_display ( void );
 void print_pid ( ppstat entry, int identifier );

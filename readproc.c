@@ -240,3 +240,65 @@ int read_meminfo ( mstat *meminfo )
 	return ( 0 );
 }
 
+
+int read_proc_stat ( int procstat )
+{
+	unsigned long long		ticks = 0;
+	char buffer[256];
+	lseek ( procstat, 0, SEEK_SET );
+	if ( read ( procstat, buffer, 256 ) )
+	{
+		memcpy ( &parametres.cpu_stats[1], &parametres.cpu_stats[0], sizeof ( cstats ) );
+		sscanf ( buffer, "%*s %llu %llu %llu %llu %llu %llu %llu %llu",
+			&parametres.cpu_stats[0].user,
+			&parametres.cpu_stats[0].nice,
+			&parametres.cpu_stats[0].system,
+			&parametres.cpu_stats[0].idle,
+			&parametres.cpu_stats[0].iowait,
+			&parametres.cpu_stats[0].irq,
+			&parametres.cpu_stats[0].softirq,
+			&parametres.cpu_stats[0].steal
+			);
+		ticks = parametres.cpu_stats[0].user + parametres.cpu_stats[0].nice + parametres.cpu_stats[0].system + parametres.cpu_stats[0].idle;
+		if ( parametres.ticks_lastpass != 0 )
+		{
+			parametres.ticks_passed = ( ticks - parametres.ticks_lastpass ) / sysconf ( _SC_NPROCESSORS_ONLN );
+		}
+		parametres.ticks_lastpass = ticks;
+	}
+	return parametres.ticks_passed;
+}
+
+int read_btime ( int procstat )
+{
+	char buffer[BUFFSIZE];
+	char *eolp=NULL;
+	char *bolp=NULL;
+	ssize_t read_chars=0;
+	int restsize = 0;
+	lseek ( procstat, 0, SEEK_SET );
+
+	do
+	{
+		read_chars = read ( procstat, buffer + restsize, sizeof ( buffer ) - restsize );
+		bolp = buffer;
+		while ( ( eolp = memchr ( bolp, '\n', BUFFSIZE - ( bolp - buffer ) ) ) != NULL)
+		{
+			eolp[0] = '\0';
+			eolp++;
+			if ( ! strncmp ( bolp, "btime ", 6 ) )
+			{
+				sscanf ( bolp, "btime %ld", &parametres.boottime );
+				break;
+			}
+			bolp = eolp;
+		}
+		/*
+		move the rest of the string to the beginning
+		*/
+		restsize = BUFFSIZE - ( bolp - buffer );
+		memmove ( buffer, bolp, restsize );
+	}
+	while ( read_chars > 0 );
+	return ( parametres.boottime );
+}
