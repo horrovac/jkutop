@@ -80,6 +80,9 @@ percent CPU spent in kernel mode, the "system load". Processes showing high syst
 .TP
 \fBCPUSET\fR
 the cpuset the process is being executed in
+.TP
+\fBnTHR\fR
+the number of threads this process is executing
 .PP
 The name of current sort field is shown in \fBbold\fR font. You can choose to have the processes sorted in ascending or descending order.
 .SH MOUSE OPERATION
@@ -89,7 +92,8 @@ Double-clicking a display column name in the header will make it the new sort fi
 .SH SELECTING/COPYING TEXT
 Hold down shift key to enable normal mouse operation for click-and-drag or multiple-click selection and copying. Ncurses mouse support masks mouse operations, using shift enables them again.
 .SH BUGS
-Certainly many.
+.PP
+The delay between updates is accomplished by ncurses' halfdelay mode while waiting for input. This makes updates inaccurate. The delay is the sum of halfdelay timeout and the time required to update data. Also, any user input causes halfdelay to exit, so every input triggers a new update. It works, but is messy. The desireable behaviour would be to aim for fixed updates of about 3 seconds if the data can be updated in that time, and to extend if not (which can happen on a very big and busy system).
 .SH "REPORTING BUGS"
 Report acctdb bugs to (and request features from) faruk.kujundzic@jku.at
 .SH AUTHOR
