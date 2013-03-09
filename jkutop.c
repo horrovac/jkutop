@@ -80,6 +80,7 @@ int main ( int argc, char **argv )
 	struct dirent	*dir_entry;
 	int				fd;
 	int				procstat;	/* fd for /proc/stat */
+	int				loadavg;	/* fd for /proc/loadavg */
 	char			path[1024];
 	char			buffer[BUFFSIZE];
 	char			state[1];
@@ -141,6 +142,12 @@ int main ( int argc, char **argv )
 		return 0;
 	}
 
+	if ( ! ( loadavg = open ( "/proc/loadavg", O_RDONLY )) )
+	{
+		fprintf ( stderr, "Can't open /proc/loadavg, something's effed.\n" );
+		return 0;
+	}
+
 	/* read when the system was booted */
 	read_btime ( procstat );
 
@@ -148,6 +155,9 @@ int main ( int argc, char **argv )
 	{
 		/* get number of ticks passed since last pass */
 		read_proc_stat ( procstat );
+
+		/* read the load averages */
+		read_loadavg ( loadavg );
 		
 		/* read the memory info */
 		read_meminfo ( memory );
