@@ -19,7 +19,6 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <string.h>
 #include "jkutop.h"
 
 //#define BUFFSIZE 1024
@@ -288,7 +287,7 @@ int read_btime ( int procstat )
 			eolp++;
 			if ( ! strncmp ( bolp, "btime ", 6 ) )
 			{
-				sscanf ( bolp, "btime %ld", &parametres.boottime );
+				sscanf ( bolp, "btime %ld", &parametres.btime );
 				break;
 			}
 			bolp = eolp;
@@ -300,5 +299,5 @@ int read_btime ( int procstat )
 		memmove ( buffer, bolp, restsize );
 	}
 	while ( read_chars > 0 );
-	return ( parametres.boottime );
+	return ( parametres.btime );
 }

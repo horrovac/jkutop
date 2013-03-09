@@ -18,7 +18,6 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
-#include <string.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -31,7 +30,6 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 #undef DEBUG_CLEANUP
 
 const char *blacklist[] = { "ksoftirqd/", "migration/", "events/", "kintegrityd/", "kblockd/", "kstop/", "kondemand/", "kswapd", "aio/", "crypto/", "ata/", "xfslogd/", "xfsdatad/", "xfsconvertd/", "rpciod/", "kworker", NULL };
-double	ticks_passed;
 ppstat stats[HASH_TABLE_SIZE];
 ppstat *stats_array = NULL;
 pmstat memory;
@@ -195,7 +193,27 @@ int main ( int argc, char **argv )
 					continue;
 				}
 				buffer[chars_read+1] = '\0';
-				sscanf ( buffer, "%d (%[^)]) %c %d %d %d %d %*d %*d %Lu %*d %Lu %*d %Lu %Lu %Ld %Ld %ld %ld %ld %*d %*d %lu %ld", &stats_buffer->pid, stats_buffer->name, state, &stats_buffer->ppid, &stats_buffer->pgrp, &stats_buffer->session, &stats_buffer->tty_nr, &stats_buffer->minflt, &stats_buffer->majflt, &stats_buffer->utime, &stats_buffer->stime, &stats_buffer->cutime, &stats_buffer->cstime, &stats_buffer->priority, &stats_buffer->niceness, &stats_buffer->num_threads, &stats_buffer->virt, &stats_buffer->res );
+				sscanf ( buffer, "%d (%[^)]) %c %d %d %d %d %*d %*d %Lu %*d %Lu %*d %Lu %Lu %Ld %Ld %ld %ld %ld %*d %Lu %lu %ld",
+					&stats_buffer->pid,
+					stats_buffer->name,
+					state,
+					&stats_buffer->ppid,
+					&stats_buffer->pgrp,
+					&stats_buffer->session,
+					&stats_buffer->tty_nr,
+					&stats_buffer->minflt,
+					&stats_buffer->majflt,
+					&stats_buffer->utime,
+					&stats_buffer->stime,
+					&stats_buffer->cutime,
+					&stats_buffer->cstime,
+					&stats_buffer->priority,
+					&stats_buffer->niceness,
+					&stats_buffer->num_threads,
+					&stats_buffer->starttime,
+					&stats_buffer->virt,
+					&stats_buffer->res
+					);
 				if ( ! process_filter ( stats_buffer->name ) )
 				{
 					/*
@@ -217,10 +235,10 @@ int main ( int argc, char **argv )
 					*/
 					stats_buffer->utime_lastpass = current->utime;
 					stats_buffer->stime_lastpass = current->stime;
-					if ( ticks_passed > 0 )
+					if ( parametres.ticks_passed > 0 )
 					{
-						stats_buffer->cpu_percent = (((stats_buffer->utime + stats_buffer->stime ) - (stats_buffer->utime_lastpass + stats_buffer->stime_lastpass )) / ticks_passed ) * 100;
-						stats_buffer->system_cpu_percent = ((stats_buffer->stime - stats_buffer->stime_lastpass ) / ticks_passed ) * 100;
+						stats_buffer->cpu_percent = (((stats_buffer->utime + stats_buffer->stime ) - (stats_buffer->utime_lastpass + stats_buffer->stime_lastpass )) / parametres.ticks_passed ) * 100;
+						stats_buffer->system_cpu_percent = ((stats_buffer->stime - stats_buffer->stime_lastpass ) / parametres.ticks_passed ) * 100;
 					}
 					/*
 					else

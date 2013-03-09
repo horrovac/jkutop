@@ -22,6 +22,7 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 #include <grp.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #define KEEPRECORDS 5
 #define BUFFSIZE 20480
@@ -78,6 +79,7 @@ typedef struct pidstat
 	double				cpu_percent;
 	double				system_cpu_percent;
 	long				num_threads;
+	unsigned long long	starttime;
 	long				priority;
 	long				niceness;
 	unsigned long		virt;
@@ -133,7 +135,7 @@ typedef struct parametres
 	unsigned long long	ticks_lastpass;
 	double	ticks_passed;	/* ticks passed between updates */
 	char	progname[256];
-	time_t	boottime;
+	time_t	btime;
 }params;
 
 /*

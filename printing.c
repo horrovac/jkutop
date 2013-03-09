@@ -40,7 +40,6 @@ int print_it ( ppstat *stats_array, int count )
 
 	if ( parametres.cpu_stats[1].user > 0 )
 	{
-		mvprintw ( 1, 0, "System booted at %s", ctime ( &parametres.boottime ) );
 		mvprintw ( 2, 0, "Cpu(s):%5.1f us,%5.1f sy,%5.1f ni,%5.1f id,%5.1f wa,%5.1f hi,%5.1f si,%5.1f st",
 		((parametres.cpu_stats[0].user - parametres.cpu_stats[1].user)/total_ticks) * 100,
 	 	((parametres.cpu_stats[0].system - parametres.cpu_stats[1].system)/total_ticks) * 100,
@@ -208,8 +207,20 @@ int show_process_detail ( ppstat *stats_array, int member )
 	WINDOW *detail_win;
 	char procname[256];
 	int input;
+	time_t starttime;
+	char starttime_string[30];
+	unsigned long long runtime;
 	struct passwd *pwentry;
 	struct group	*grentry;
+	
+	/* calculate times for displaying */
+	starttime = parametres.btime + (stats_array[member]->starttime / parametres.hertz);
+	runtime = time( NULL ) - starttime;
+	/* generate string representation of starttime and strip
+	 * off the newline */
+	 ctime_r ( &starttime, starttime_string );
+	 starttime_string[strlen ( starttime_string ) - 1] = '\0';
+
 
 	sprintf ( procname, "%d", stats_array[member]->pid );
 	read_cpuset ( stats_array[member], procname );
@@ -241,6 +252,14 @@ int show_process_detail ( ppstat *stats_array, int member )
 		mvwprintw ( detail_win, 9, 1, "%-10s %15d", "nMaj", stats_array[member]->majflt );
 		/* nMin */
 		mvwprintw ( detail_win, 10, 1, "%-10s %15d", "nMin", stats_array[member]->minflt );
+		if ( runtime > 86400 )
+		{
+			mvwprintw ( detail_win, 11, 1, "%-10s %15s (running %Ldd %02Ld:%02Ld:%02Ld)", "Starttime", starttime_string, runtime / 86400, ( runtime % 86400 ) / 3600, ( runtime % 3600 ) / 60, runtime % 60  );
+		}
+		else
+		{
+			mvwprintw ( detail_win, 11, 1, "%-10s %15s (running %02Ld:%02Ld:%02Ld)", "Starttime", starttime_string, runtime / 3600,  runtime % 3600  / 60, runtime % 60 );
+		}
 		/* instructions */
 		mvwprintw ( detail_win, 19, 12, "Click or press any key to close" );
 		/* instructions */
