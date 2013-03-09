@@ -50,14 +50,14 @@ int print_it ( ppstat *stats_array, int count )
 
 	attroff ( A_BOLD );
 
-	mvprintw ( 0, 0, "%-6s - %s  up %Lu days %02Ld:%02Ld",
+	mvprintw ( 0, 0, "%-6s - %s  up %ld days %02ld:%02ld",
 		parametres.progname,
 		timestring,
 		uptime / 86400,
 		( uptime % 86400 ) / 3600,
 		( uptime % 3600 ) / 60
 		);
-	mvprintw ( 0, 41, "load average: %06.2f %06.2f %06.2f",
+	mvprintw ( 0, 41, "load average: %6.2f %6.2f %6.2f",
 		parametres.loadavg[0],
 		parametres.loadavg[1],
 		parametres.loadavg[2]
