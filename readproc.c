@@ -301,3 +301,19 @@ int read_btime ( int procstat )
 	while ( read_chars > 0 );
 	return ( parametres.btime );
 }
+
+int read_loadavg ( int loadavg )
+{
+	int retval = 0;
+	char buffer[256];
+
+	lseek ( loadavg, 0, SEEK_SET );
+
+	if ( read ( loadavg, buffer, 256 ) )
+	{
+		retval = sscanf ( buffer, "%f %f %f", &parametres.loadavg[0], &parametres.loadavg[1], &parametres.loadavg[2] );
+	}
+	return  retval;
+}
+
+

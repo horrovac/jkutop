@@ -29,6 +29,10 @@ int print_it ( ppstat *stats_array, int count )
 {
 	int input;
 	int i, j;
+	time_t uptime;
+	time_t t;
+	struct tm *now;
+	char timestring[9];
 	extern pmstat memory;
 	double	total_ticks;
 	MEVENT event;
@@ -37,6 +41,27 @@ int print_it ( ppstat *stats_array, int count )
 	total_ticks = parametres.ticks_passed * sysconf ( _SC_NPROCESSORS_ONLN );
 	keypad ( win, TRUE );
 	erase();
+
+	t = time ( NULL );
+	now = localtime ( &t );
+	strftime ( timestring, 9, "%H:%M:%S", now );
+	
+	uptime = time ( NULL ) - parametres.btime;
+
+	attroff ( A_BOLD );
+
+	mvprintw ( 0, 0, "%-6s - %s  up %Lu days %02Ld:%02Ld",
+		parametres.progname,
+		timestring,
+		uptime / 86400,
+		( uptime % 86400 ) / 3600,
+		( uptime % 3600 ) / 60
+		);
+	mvprintw ( 0, 41, "load average: %06.2f %06.2f %06.2f",
+		parametres.loadavg[0],
+		parametres.loadavg[1],
+		parametres.loadavg[2]
+		);
 
 	if ( parametres.cpu_stats[1].user > 0 )
 	{
@@ -109,12 +134,11 @@ int print_it ( ppstat *stats_array, int count )
 
 		}
 		/* limit output to visible rows */
-		if ( i + 9 >= row )
+		if ( i + 8 >= row )
 		{
 			break;
 		}
 	}
-	printw ( "%d records, %d\n", count, (int) time( NULL ) );
 	refresh();
 	if ( ( input = getch () ) != ERR )
 	{
@@ -252,14 +276,7 @@ int show_process_detail ( ppstat *stats_array, int member )
 		mvwprintw ( detail_win, 9, 1, "%-10s %15d", "nMaj", stats_array[member]->majflt );
 		/* nMin */
 		mvwprintw ( detail_win, 10, 1, "%-10s %15d", "nMin", stats_array[member]->minflt );
-		if ( runtime > 86400 )
-		{
-			mvwprintw ( detail_win, 11, 1, "%-10s %15s (running %Ldd %02Ld:%02Ld:%02Ld)", "Starttime", starttime_string, runtime / 86400, ( runtime % 86400 ) / 3600, ( runtime % 3600 ) / 60, runtime % 60  );
-		}
-		else
-		{
-			mvwprintw ( detail_win, 11, 1, "%-10s %15s (running %02Ld:%02Ld:%02Ld)", "Starttime", starttime_string, runtime / 3600,  runtime % 3600  / 60, runtime % 60 );
-		}
+		mvwprintw ( detail_win, 11, 1, "%-s %15s (running %Ldd %02Ld:%02Ld:%02Ld)", "Starttime ", starttime_string, runtime / 86400, ( runtime % 86400 ) / 3600, ( runtime % 3600 ) / 60, runtime % 60  );
 		/* instructions */
 		mvwprintw ( detail_win, 19, 12, "Click or press any key to close" );
 		/* instructions */

@@ -136,6 +136,7 @@ typedef struct parametres
 	double	ticks_passed;	/* ticks passed between updates */
 	char	progname[256];
 	time_t	btime;
+	float	loadavg[3];
 }params;
 
 /*
@@ -163,6 +164,7 @@ int read_smaps ( pstat *stats, char *pid );
 int sort_entries ( void );
 int read_proc_stat ( int procstat );
 int read_btime ( int procstat );
+int read_loadavg ( int loadavg );
 int read_meminfo ( mstat *meminfo );
 int read_cpuset ( pstat *stats, char *pid );
 
