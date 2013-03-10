@@ -79,8 +79,36 @@ int print_it ( ppstat *stats_array, int count )
 	{
 		mvprintw ( 2, 0, "Cpu(s):%5.1f us,%5.1f sy,%5.1f ni,%5.1f id,%5.1f wa,%5.1f hi,%5.1f si,%5.1f st", 0, 0, 0, 0, 0, 0, 0, 0 );
 	}
-	mvprintw ( 3, 0, "KiB Mem:%10lu total, %10lu used, %10lu free, %10lu buffers", memory->memtotal, memory->memtotal - memory->memfree, memory->memfree, memory->buffers );
-	mvprintw ( 4, 0, "KiB Swap:%10lu total, %10lu used, %10lu free, %10lu cached", memory->swaptotal, memory->swaptotal - memory->swapfree, memory->swapfree, memory->cached );
+	if ( memory->memtotal > 1000000000 )
+	{
+		mvprintw ( 3, 0, "MiB Mem:%10lu total, %10lu used, %10lu free, %10lu buffers",
+			memory->memtotal / 1024,
+			( memory->memtotal - memory->memfree ) / 1024,
+			memory->memfree / 1024,
+			memory->buffers / 1024
+		);
+		mvprintw ( 4, 0, "MiB Swap:%9lu total, %10lu used, %10lu free, %10lu cached",
+			memory->swaptotal / 1024,
+			( memory->swaptotal - memory->swapfree ) / 1024,
+			memory->swapfree / 1024,
+			memory->cached / 1024
+		);
+	}
+	else
+	{
+		mvprintw ( 3, 0, "KiB Mem:%10lu total, %10lu used, %10lu free, %10lu buffers",
+			memory->memtotal,
+			memory->memtotal - memory->memfree,
+			memory->memfree,
+			memory->buffers
+		);
+		mvprintw ( 4, 0, "KiB Swap:%9lu total, %10lu used, %10lu free, %10lu cached",
+			memory->swaptotal,
+			memory->swaptotal - memory->swapfree,
+			memory->swapfree,
+			memory->cached
+		);
+	}
 	mvprintw ( 5, 0, "JKUtop - horrovac invenit et fecit" );
 	attron ( A_REVERSE );
 	/*
