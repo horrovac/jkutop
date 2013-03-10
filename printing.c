@@ -63,7 +63,7 @@ int print_it ( ppstat *stats_array, int count )
 		parametres.loadavg[2]
 		);
 
-	if ( parametres.cpu_stats[1].user > 0 )
+	if ( parametres.cpu_stats[1].user != 0 )
 	{
 		mvprintw ( 2, 0, "Cpu(s):%5.1f us,%5.1f sy,%5.1f ni,%5.1f id,%5.1f wa,%5.1f hi,%5.1f si,%5.1f st",
 		((parametres.cpu_stats[0].user - parametres.cpu_stats[1].user)/total_ticks) * 100,
@@ -77,7 +77,7 @@ int print_it ( ppstat *stats_array, int count )
 	}
 	else
 	{
-		mvprintw ( 2, 0, "Cpu(s):%5.1f us,%5.1f sy,%5.1f ni,%5.1f id,%5.1f wa,%5.1f hi,%5.1f si,%5.1f st", 0, 0, 0, 0, 0, 0, 0, 0 );
+		mvprintw ( 2, 0, "Cpu(s):%5.1f us,%5.1f sy,%5.1f ni,%5.1f id,%5.1f wa,%5.1f hi,%5.1f si,%5.1f st", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
 	}
 	if ( memory->memtotal > 1000000000 )
 	{
@@ -203,6 +203,8 @@ int print_it ( ppstat *stats_array, int count )
 					}
 				}
 				break;
+			case '0':
+				sleep ( 1 );
 			default:
 				break;
 		}

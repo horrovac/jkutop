@@ -119,8 +119,13 @@ int main ( int argc, char **argv )
 
 	win = initscr();		/* ncurses initialisation */
 	noecho();				/* don't show keys typed */
-	//nodelay ( win, TRUE );	/* don't delay while waiting for user input */
-	halfdelay ( 30 );
+
+	/*
+	 * set short initial delay so the display is updated with useful
+	 * data as soon as possible. Right after the first call of print_it
+	 * this is eased off to a delay of 3 seconds
+	 */
+	halfdelay ( 3 );
 	getmaxyx ( win, row, col );
 
 	stats_array = malloc ( allocated * sizeof ( ppstat ) );
@@ -279,6 +284,7 @@ int main ( int argc, char **argv )
 		qsort ( stats_array, c, sizeof ( pstat * ), compare_elements );
 
 		print_it ( stats_array, c );
+		halfdelay ( 30 );
 
 		//break;
 		if ( sequence > 0 )
