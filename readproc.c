@@ -82,7 +82,22 @@ int read_status ( pstat *stats, char *pid )
 		move the rest of the string to the beginning
 		*/
 		restsize = BUFFSIZE - ( bolp - buffer );
-		memmove ( buffer, bolp, restsize );
+		/* if restsize equals BUFFERSIZE the line is just too damn  long
+		 * and does not fit into the buffer. Does not happen usually
+		 * except on giant SMP systems. There is nothing of interest for
+		 * us in such lines, so we'll just throw it away and read the
+		 * next chunk. Otherwise this would have to be rewritten
+		 * (probably by just increasing BUFFSIZE to receive a whole
+		 * line)
+		 */
+		if ( restsize == BUFFSIZE )
+		{
+			restsize = 0;
+		}
+		else
+		{
+			memmove ( buffer, bolp, restsize );
+		}
 	}
 	while ( read_chars > 0 );
 	/*
@@ -141,7 +156,22 @@ int read_smaps ( pstat *stats, char *pid )
 		move the rest of the string to the beginning
 		*/
 		restsize = BUFFSIZE - ( bolp - buffer );
-		memmove ( buffer, bolp, restsize );
+		/* if restsize equals BUFFERSIZE the line is just too damn  long
+		 * and does not fit into the buffer. Does not happen usually
+		 * except on giant SMP systems. There is nothing of interest for
+		 * us in such lines, so we'll just throw it away and read the
+		 * next chunk. Otherwise this would have to be rewritten
+		 * (probably by just increasing BUFFSIZE to receive a whole
+		 * line)
+		 */
+		if ( restsize == BUFFSIZE )
+		{
+			restsize = 0;
+		}
+		else
+		{
+			memmove ( buffer, bolp, restsize );
+		}
 	}
 	while ( read_chars > 0 );
 	/*
@@ -231,7 +261,22 @@ int read_meminfo ( mstat *meminfo )
 		move the rest of the string to the beginning
 		*/
 		restsize = BUFFSIZE - ( bolp - buffer );
-		memmove ( buffer, bolp, restsize );
+		/* if restsize equals BUFFERSIZE the line is just too damn  long
+		 * and does not fit into the buffer. Does not happen usually
+		 * except on giant SMP systems. There is nothing of interest for
+		 * us in such lines, so we'll just throw it away and read the
+		 * next chunk. Otherwise this would have to be rewritten
+		 * (probably by just increasing BUFFSIZE to receive a whole
+		 * line)
+		 */
+		if ( restsize == BUFFSIZE )
+		{
+			restsize = 0;
+		}
+		else
+		{
+			memmove ( buffer, bolp, restsize );
+		}
 	}
 	while ( read_chars > 0 );
 
@@ -296,7 +341,22 @@ int read_btime ( int procstat )
 		move the rest of the string to the beginning
 		*/
 		restsize = BUFFSIZE - ( bolp - buffer );
-		memmove ( buffer, bolp, restsize );
+		/* if restsize equals BUFFERSIZE the line is just too damn  long
+		 * and does not fit into the buffer. Does not happen usually
+		 * except on giant SMP systems. There is nothing of interest for
+		 * us in such lines, so we'll just throw it away and read the
+		 * next chunk. Otherwise this would have to be rewritten
+		 * (probably by just increasing BUFFSIZE to receive a whole
+		 * line)
+		 */
+		if ( restsize == BUFFSIZE )
+		{
+			restsize = 0;
+		}
+		else
+		{
+			memmove ( buffer, bolp, restsize );
+		}
 	}
 	while ( read_chars > 0 );
 	return ( parametres.btime );

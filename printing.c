@@ -57,7 +57,7 @@ int print_it ( ppstat *stats_array, int count )
 		( uptime % 86400 ) / 3600,
 		( uptime % 3600 ) / 60
 		);
-	mvprintw ( 0, 41, "load average: %6.2f %6.2f %6.2f",
+	mvprintw ( 0, 41, "load average: %7.2f %7.2f %7.2f",
 		parametres.loadavg[0],
 		parametres.loadavg[1],
 		parametres.loadavg[2]
