@@ -193,6 +193,7 @@ void print_majflt_delta ( ppstat entry, int identifier );
 void print_system_cpu_percent ( ppstat entry, int identifier );
 void print_cpuset ( ppstat entry, int identifier );
 void print_nthr ( ppstat entry, int identifier );
+void show_help ( void );
 int show_process_detail ( ppstat *stats_array, int member );
 int mouse_select_sortfield ( int x );
 

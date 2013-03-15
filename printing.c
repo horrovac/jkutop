@@ -203,8 +203,9 @@ int print_it ( ppstat *stats_array, int count )
 					}
 				}
 				break;
-			case '0':
-				sleep ( 1 );
+			case 'h':
+				show_help ();
+				break;
 			default:
 				break;
 		}
@@ -254,6 +255,39 @@ int mouse_select_sortfield ( int x )
 		}
 	}
 	return ( 0 );
+}
+
+void show_help ( void )
+{
+	WINDOW *help_win;
+	int input;
+	cbreak();
+	help_win = newwin ( 23, 70, 1, 1 );
+	mvwprintw ( help_win, 1, 1, "                    FUNCTION KEYS" );
+	mvwprintw ( help_win, 2, 1, "%-9s - %s", "q", "Quit" );
+	mvwprintw ( help_win, 3, 1, "%-9s - %s", "SsFfOo", "Modify fields and sorting" );
+	mvwprintw ( help_win, 4, 1, "%-9s - %s", "w", "Write your current configuration to a file" );
+	mvwprintw ( help_win, 5, 1, "%-9s - %s", "h", "This help" );
+	mvwprintw ( help_win, 7, 1, "                    MOUSE" );
+	mvwprintw ( help_win, 8, 1, "Doubleclick:" );
+	mvwprintw ( help_win, 9, 11, "- on a task line: display process detail" );
+	mvwprintw ( help_win, 10, 11, "- on column title: sort by this column" );
+	mvwprintw ( help_win, 11, 11, "- on column title already sorted by:" );
+	mvwprintw ( help_win, 12, 21, "toggle ascending/descending" );
+	wborder ( help_win, 0, 0, 0, 0, 0, 0, 0, 0 );
+	wrefresh ( help_win );
+	if ( ( input = getch () ) != ERR )
+	{
+		switch ( input )
+		{
+			case 'q':
+				break;
+			default:
+				ungetch ( input );
+				break;
+		}
+	}
+	halfdelay ( 30 );
 }
 
 int show_process_detail ( ppstat *stats_array, int member )
