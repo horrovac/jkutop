@@ -79,6 +79,8 @@ int main ( int argc, char **argv )
 	DIR				*dirp;
 	struct dirent	*dir_entry;
 	int				fd;
+	extern char		*optarg;
+	int				opt;
 	int				procstat;	/* fd for /proc/stat */
 	int				loadavg;	/* fd for /proc/loadavg */
 	char			path[1024];
@@ -110,12 +112,31 @@ int main ( int argc, char **argv )
 	parametres.sortby = CPU;
 	parametres.reversesort = 0;
 	parametres.requested_fields = 0;
+	parametres.restrict_to_uid = -1337;
+	parametres.restrict_to_gid = -81;
 	parametres.hertz = sysconf ( _SC_CLK_TCK );
 
 	/* sets parametres.progname to the name we were called with */
 	get_my_name ( argv[0] ); 
 
 	init_fields();
+
+	/*
+	 * get commandline options
+	 */
+	while ( ( opt = getopt ( argc, argv, "u:g:" ) ) > 0 )
+	{
+		switch ( opt )
+		{
+			case 'u':
+				parametres.restrict_to_uid = get_uid ( optarg );
+				break;
+			case 'g':
+				parametres.restrict_to_gid = get_gid ( optarg );
+				break;
+		}
+	}
+
 
 	win = initscr();		/* ncurses initialisation */
 	noecho();				/* don't show keys typed */
@@ -229,8 +250,14 @@ int main ( int argc, char **argv )
 					&stats_buffer->virt,
 					&stats_buffer->res
 					);
-				if ( ! process_filter ( stats_buffer->name ) )
+				if ( ! process_filter ( stats_buffer ) )
 				{
+					read_status ( stats_buffer, dir_entry->d_name );
+					if ( user_filter ( stats_buffer ) )
+					{
+						close ( fd );
+						goto next_iteration;
+					}
 					/*
 					allocate space for the stats in the hash table, also
 					store the pointer in the array, to be used for sorting
@@ -271,7 +298,7 @@ int main ( int argc, char **argv )
 					}
 					memcpy ( current, stats_buffer, sizeof ( pstat ) );
 					//read_smaps ( current, dir_entry->d_name );
-					read_status ( current, dir_entry->d_name );
+					//read_status ( current, dir_entry->d_name );
 				}
 				close ( fd );
 			}
@@ -302,18 +329,38 @@ int main ( int argc, char **argv )
 	return ( 0 );
 }
 
-int process_filter ( const char *execname )
+int process_filter ( ppstat stats_buffer )
 {
 	int i;
 	int retval = 0;
 
 	for ( i = 0; blacklist[i] != NULL; i++ )
 	{
-		if ( ! strncmp ( execname, blacklist[i], strlen ( blacklist[i] ) ) )
+		if ( ! strncmp ( stats_buffer->name, blacklist[i], strlen ( blacklist[i] ) ) )
 		{
 #ifdef DEBUG
 			fprintf ( stderr, "name %s blacklisted, skipping...\n", blacklist[i] );
 #endif					
+			retval = 1;
+		}
+	}
+	return ( retval );
+}
+
+int user_filter ( ppstat stats_buffer )
+{
+	int retval = 0;
+	if ( parametres.restrict_to_uid >= 0 )
+	{
+		if ( stats_buffer->uid != parametres.restrict_to_uid )
+		{
+			retval = 1;
+		}
+	}
+	if ( parametres.restrict_to_gid >= 0 )
+	{
+		if ( stats_buffer->gid != parametres.restrict_to_gid )
+		{
 			retval = 1;
 		}
 	}
@@ -713,4 +760,80 @@ void get_my_name ( char *argv )
 	{
 		strncpy ( parametres.progname, argv, 256 );
 	}
+}
+
+int get_uid ( char *user )
+{
+	int i;
+	struct passwd	*pwent;
+	int retval = -1;
+	for ( i = 0; i < 256; i++ )
+	{
+		if ( user[i] == '\0' )
+		{
+			/* all digits until end of string, assume parametre passed
+			 * is an UID and return that
+			 */
+			retval = atoi ( user );
+			break;
+		}
+		if ( ! isdigit ( user[i] ) )
+		{
+			/* 
+			 * this seems not to be an UID, try handling it
+			 * as an username
+			 */
+			 if ( ( pwent = getpwnam ( user ) ) != NULL )
+			 {
+				 retval = pwent->pw_uid;
+				 break;
+			 }
+			 else
+			 {
+				 /* parametre passed seems not to be a user name, giving
+				  * up
+				  */
+				  break;
+			 }
+		}
+	}
+	return ( retval );
+}
+
+int get_gid ( char *group )
+{
+	int i;
+	struct group	*grent;
+	int retval = -1;
+	for ( i = 0; i < 256; i++ )
+	{
+		if ( group[i] == '\0' )
+		{
+			/* all digits until end of string, assume parametre passed
+			 * is an UID and return that
+			 */
+			retval = atoi ( group );
+			break;
+		}
+		if ( ! isdigit ( group[i] ) )
+		{
+			/* 
+			 * this seems not to be an UID, try handling it
+			 * as an groupname
+			 */
+			 if ( ( grent = getgrnam ( group ) ) != NULL )
+			 {
+				 retval = grent->gr_gid;
+				 break;
+			 }
+			 else
+			 {
+				 /* parametre passed seems not to be a group name, giving
+				  * up
+				  */
+				  break;
+			 }
+		}
+	}
+	return ( retval );
 }

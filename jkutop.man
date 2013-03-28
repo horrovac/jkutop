@@ -3,7 +3,7 @@
 .SH NAME
 JKUtop \- a rewrite of top
 .SH SYNOPSIS
-.B jkutop
+.B jkutop [-u (username|uid)] [-g (groupname|gid)]
 .SH DESCRIPTION
 .\" Add any additional description here
 .PP
@@ -11,7 +11,15 @@ JKUtop is a rewrite of top geared towards speed, especially on big SMP systems. 
 .PP
 JKUtop has a couple of features we (HPC administrators) found useful, like cpuset or page faults delta. The interface uses ncurses to replicate the one known from top. There is also some level of support for mouse control.
 .PP
-Currently there are no command line options, all modifications are done interactively. You can use any of:
+Currently there is a limited set of command line options:
+.TP
+\fB-u username|uid\fR
+Restrict displayed jobs to those owned by this user or UID
+.TP
+\fB-g groupname|gid\fR
+Restrict displayed jobs to those owned by this group or GID
+.PP
+Most modifications are done interactively. You can use any of:
 .TP
 \fBO, o, S, s, F or f\fR
 to enter the display modification mode. Then follow the instructions shown in the header area (this is still a work in progress and likely to change)

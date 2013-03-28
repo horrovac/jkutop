@@ -65,6 +65,10 @@ int read_status ( pstat *stats, char *pid )
 			{
 				sscanf ( bolp, "Uid: %d %d %*d %*d", &stats->uid, &stats->euid );
 			}
+			if ( ! strncmp ( bolp, "Gid:", 4 ) )
+			{
+				sscanf ( bolp, "Gid: %d %d %*d %*d", &stats->gid, &stats->egid );
+			}
 			/*
 			functionality moved to read_smaps()
 			...and then back here again, smaps is rubbish.

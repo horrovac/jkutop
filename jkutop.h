@@ -67,6 +67,8 @@ typedef struct pidstat
 	int					tty_nr;
 	int					uid;
 	int					euid;
+	int					gid;
+	int					egid;
 	unsigned long long	majflt;
 	int					majflt_delta;
 	unsigned long long	minflt;
@@ -130,6 +132,10 @@ typedef struct parametres
 	int		sortby;
 	int		reversesort;
 	long	requested_fields; /*bitmask, read comment below*/
+	char	requested_user[256];
+	char	requested_group[256];
+	int		restrict_to_uid; /* show only processes of uid */
+	int		restrict_to_gid; /* show only processes of gid */
 	int		hertz;	/* system clock frequency */
 	cstats	cpu_stats[2];
 	unsigned long long	ticks_lastpass;
@@ -152,11 +158,14 @@ typedef struct parametres
 
 /* defined in jkutop.c */
 int compare_elements ( const void *first, const void *second );
-int process_filter ( const char *execname );
+int process_filter ( ppstat stats_buffer );
+int user_filter ( ppstat stats_buffer );
 int clean_up ( int sequence );
 void get_my_name ( char *argv );
 ppstat get_record (	int pid );
 void init_fields ( void );
+int get_uid ( char *user );
+int get_gid ( char *group );
 
 /* defined in readproc.c */
 int read_status ( pstat *stats, char *pid );
