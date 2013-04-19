@@ -320,27 +320,29 @@ int show_process_detail ( ppstat *stats_array, int member )
 	while ( 1 )
 	{
 		wborder ( detail_win, 0, 0, 0, 0, 0, 0, 0, 0 );
+		/* NAME */
+		mvwprintw ( detail_win, 1, 1, "%-9s %10s", "NAME", stats_array[member]->name );
 		/* UID */
-		mvwprintw ( detail_win, 1, 1, "%-9s %10d (%s)", "UID", stats_array[member]->uid, pwentry->pw_name );
-		mvwprintw ( detail_win, 2, 1, "%-9s %10s", "GECOS", pwentry->pw_gecos );
+		mvwprintw ( detail_win, 2, 1, "%-9s %10d (%s)", "UID", stats_array[member]->uid, pwentry->pw_name );
+		mvwprintw ( detail_win, 3, 1, "%-9s %10s", "GECOS", pwentry->pw_gecos );
 		/* GID */
-		mvwprintw ( detail_win, 3, 1, "%-9s %10d (%s)", "GID", grentry->gr_gid, grentry->gr_name );
+		mvwprintw ( detail_win, 4, 1, "%-9s %10d (%s)", "GID", grentry->gr_gid, grentry->gr_name );
 		/* PID */
-		mvwprintw ( detail_win, 4, 1, "%-9s %10d", "PID", stats_array[member]->pid );
+		mvwprintw ( detail_win, 5, 1, "%-9s %10d", "PID", stats_array[member]->pid );
 		/* PPID */
-		mvwprintw ( detail_win, 5, 1, "%-9s %10d", "PPID", stats_array[member]->ppid );
+		mvwprintw ( detail_win, 6, 1, "%-9s %10d", "PPID", stats_array[member]->ppid );
 		/* PGRP */
-		mvwprintw ( detail_win, 6, 1, "%-9s %10d", "PGRP", stats_array[member]->pgrp );
+		mvwprintw ( detail_win, 7, 1, "%-9s %10d", "PGRP", stats_array[member]->pgrp );
 		/* SESSION */
-		mvwprintw ( detail_win, 7, 1, "%-9s %10d", "SessID", stats_array[member]->session );
+		mvwprintw ( detail_win, 8, 1, "%-9s %10d", "SessID", stats_array[member]->session );
 		/* Threads */
-		mvwprintw ( detail_win, 8, 1, "%-9s %10ld", "nTHR", stats_array[member]->num_threads );
+		mvwprintw ( detail_win, 9, 1, "%-9s %10ld", "nTHR", stats_array[member]->num_threads );
 		/* Cpuset */
-		mvwprintw ( detail_win, 9, 1, "%-9s %10s", "Cpuset", stats_array[member]->cpuset );
+		mvwprintw ( detail_win, 10, 1, "%-9s %10s", "Cpuset", stats_array[member]->cpuset );
 		/* nMaj */
-		mvwprintw ( detail_win, 10, 1, "%-9s %10d", "nMaj", stats_array[member]->majflt );
+		mvwprintw ( detail_win, 11, 1, "%-9s %10d", "nMaj", stats_array[member]->majflt );
 		/* nMin */
-		mvwprintw ( detail_win, 11, 1, "%-9s %10d", "nMin", stats_array[member]->minflt );
+		mvwprintw ( detail_win, 12, 1, "%-9s %10d", "nMin", stats_array[member]->minflt );
 		mvwprintw ( detail_win, 12, 1, "%-9s %10s (running %Ldd %02Ld:%02Ld:%02Ld)", "Start", starttime_string, runtime / 86400, ( runtime % 86400 ) / 3600, ( runtime % 3600 ) / 60, runtime % 60  );
 		/* instructions */
 		mvwprintw ( detail_win, 19, 12, "Click or press any key to close" );
