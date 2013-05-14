@@ -298,6 +298,10 @@ int show_process_detail ( ppstat *stats_array, int member )
 	time_t starttime;
 	char starttime_string[30];
 	unsigned long long runtime;
+	long double temp;
+	char majflt_byte[256];
+	char minflt_byte[256];
+	int c;
 	struct passwd *pwentry;
 	struct group	*grentry;
 	
@@ -308,6 +312,34 @@ int show_process_detail ( ppstat *stats_array, int member )
 	 * off the newline */
 	 ctime_r ( &starttime, starttime_string );
 	 starttime_string[strlen ( starttime_string ) - 1] = '\0';
+
+	/* generate pretty representation of page fault volume in byte */
+	temp = stats_array[member]->majflt * sysconf ( _SC_PAGESIZE );
+	for ( c = 0; temp > 1000; c++ )
+	{
+		temp /= 1024;
+	}
+	if ( c > 0 )
+	{
+		sprintf ( majflt_byte, "%3.2Lf%c", temp, suffixes[c] );
+	}
+	else
+	{
+		sprintf ( majflt_byte, "%3.2Lf", temp );
+	}
+	temp = stats_array[member]->minflt * sysconf ( _SC_PAGESIZE );
+	for ( c = 0; temp > 1000; c++ )
+	{
+		temp /= 1024;
+	}
+	if ( c > 0 )
+	{
+		sprintf ( minflt_byte, "%3.2Lf%c", temp, suffixes[c] );
+	}
+	else
+	{
+		sprintf ( minflt_byte, "%3.2Lf", temp );
+	}
 
 
 	sprintf ( procname, "%d", stats_array[member]->pid );
@@ -340,10 +372,10 @@ int show_process_detail ( ppstat *stats_array, int member )
 		/* Cpuset */
 		mvwprintw ( detail_win, 10, 1, "%-9s %10s", "Cpuset", stats_array[member]->cpuset );
 		/* nMaj */
-		mvwprintw ( detail_win, 11, 1, "%-9s %10d", "nMaj", stats_array[member]->majflt );
+		mvwprintw ( detail_win, 11, 1, "%-9s %10d (%s)", "nMaj", stats_array[member]->majflt, majflt_byte );
 		/* nMin */
-		mvwprintw ( detail_win, 12, 1, "%-9s %10d", "nMin", stats_array[member]->minflt );
-		mvwprintw ( detail_win, 12, 1, "%-9s %10s (running %Ldd %02Ld:%02Ld:%02Ld)", "Start", starttime_string, runtime / 86400, ( runtime % 86400 ) / 3600, ( runtime % 3600 ) / 60, runtime % 60  );
+		mvwprintw ( detail_win, 12, 1, "%-9s %10d (%s)", "nMin", stats_array[member]->minflt, minflt_byte );
+		mvwprintw ( detail_win, 13, 1, "%-9s %10s (running %Ldd %02Ld:%02Ld:%02Ld)", "Start", starttime_string, runtime / 86400, ( runtime % 86400 ) / 3600, ( runtime % 3600 ) / 60, runtime % 60  );
 		/* instructions */
 		mvwprintw ( detail_win, 19, 12, "Click or press any key to close" );
 		/* instructions */
@@ -706,7 +738,7 @@ void print_res ( ppstat entry, int identifier )
 	float temp;
 	int c;
 	temp = entry->virt;
-	temp = entry->res * getpagesize();
+	temp = entry->res * sysconf( _SC_PAGESIZE );
 	for ( c = 0; temp > 1000; c++ )
 	{
 		temp /= 1024;
@@ -734,7 +766,7 @@ void print_cpu_percent ( ppstat entry, int identifier )
 void print_mem_percent ( ppstat entry, int identifier )
 {
 	extern pmstat memory;
-	printw ( fields[identifier].format, ( (float) entry->res * getpagesize() * .1024 ) / memory->memtotal );
+	printw ( fields[identifier].format, ( (float) entry->res * sysconf( _SC_PAGESIZE ) * .1024 ) / memory->memtotal );
 }
 
 void print_swap ( ppstat entry, int identifier )
