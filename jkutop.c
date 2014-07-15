@@ -270,6 +270,14 @@ int main ( int argc, char **argv )
 						close ( fd );
 						goto next_iteration;
 					}
+					if ( parametres.requested_fields & 1 << CPUSET )
+					{
+						read_cpuset ( stats_buffer, dir_entry->d_name );
+						if ( parametres.restrict_to_cpuset == 1 && strncmp ( stats_buffer->cpuset, parametres.requested_cpuset, CPUSET_NAME_LENGTH_MAX ) != 0 )
+						{
+							goto next_iteration;
+						}
+					}
 					/*
 					allocate space for the stats in the hash table, also
 					store the pointer in the array, to be used for sorting
@@ -304,10 +312,6 @@ int main ( int argc, char **argv )
 					stats_buffer->state = state[0];
 					stats_buffer->sequence = sequence;
 					stats_buffer->next = current->next;
-					if ( parametres.requested_fields & 1 << CPUSET )
-					{
-						read_cpuset ( stats_buffer, dir_entry->d_name );
-					}
 					memcpy ( current, stats_buffer, sizeof ( pstat ) );
 					//read_smaps ( current, dir_entry->d_name );
 					//read_status ( current, dir_entry->d_name );
