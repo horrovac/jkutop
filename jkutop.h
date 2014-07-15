@@ -33,6 +33,11 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 
 enum
 {
+	ERR_OPTION=1
+};
+
+enum
+{
 	PID = 0,
 	PPID,
 	USER,
@@ -143,6 +148,7 @@ typedef struct parametres
 	char	progname[256];
 	time_t	btime;
 	float	loadavg[3];
+	int 	curses;
 }params;
 
 /*
@@ -179,6 +185,8 @@ int read_cpuset ( pstat *stats, char *pid );
 
 /* defined in printing.c */
 int print_it ( ppstat *stats_array, int count );
+/* defined in ps_printing.c */
+int print_it_nocurses ( ppstat *stats_array, int count );
 int save_config ( void );
 prepr select_field ( int y, int x, prepr current );
 void modify_display ( void );
@@ -205,6 +213,11 @@ void print_nthr ( ppstat entry, int identifier );
 void show_help ( void );
 int show_process_detail ( ppstat *stats_array, int member );
 int mouse_select_sortfield ( int x );
+
+/* pointer to be defined to printf or printw depending on the
+ * art of the output (curses or not)
+ */
+int (*output)(const char *format, ...);
 
 WINDOW *win;
 int row, col;

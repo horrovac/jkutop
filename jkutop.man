@@ -1,15 +1,19 @@
 .\" MANPAGE FOR JKUTOP
 .TH JKUTOP "9" "Feb 2013" "JKUtop" "User Commands"
 .SH NAME
-JKUtop \- a rewrite of top
+JKUtop/JKUps \- a rewrite of top
 .SH SYNOPSIS
-.B jkutop [-u (username|uid)] [-g (groupname|gid)]
+.B jkutop [-u (username|uid)] [-g (groupname|gid)] [-b]
+.br
+.B jkups [-u (username|uid)] [-g (groupname|gid)]
 .SH DESCRIPTION
 .\" Add any additional description here
 .PP
 JKUtop is a rewrite of top geared towards speed, especially on big SMP systems. Apart from process filtering which excludes per-cpu kernel processes it also uses a hash table based memory structure in order to store and access process data quickly. It also has no functionality to display individual threads. Thanks to these measures it achieves a noticeable speedup on ridiculously large SMP systems compared to top from procps.
 .PP
 JKUtop has a couple of features we (HPC administrators) found useful, like cpuset or page faults delta. The interface uses ncurses to replicate the one known from top. There is also some level of support for mouse control.
+.PP
+If called as jkups, JKUtop does not use ncurses, instead it prints out a full process list to STDOUT (equivalent to running jkutop with the -b option).
 .PP
 Currently there is a limited set of command line options:
 .TP
@@ -18,6 +22,9 @@ Restrict displayed jobs to those owned by this user or UID
 .TP
 \fB-g groupname|gid\fR
 Restrict displayed jobs to those owned by this group or GID
+.TP
+\fB-b\fR
+Batch execution - disable the ncurses interface and print out a complete list of processes to STDOUT. Equivalent to calling jkutop with the name jkups
 .PP
 Most modifications are done interactively. You can use any of:
 .TP

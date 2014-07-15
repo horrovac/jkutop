@@ -3,6 +3,7 @@ AC_INIT([jkutop], [0.9], [faruk.kujundzic@jku.at])
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_PROG_CC
+AC_PROG_LN_S
 
 AC_CHECK_LIB( [ncurses], [initscr], , [AC_MSG_FAILURE([Missing required library ncurses.])] )
 AC_SUBST([EXTRA_MODULES])

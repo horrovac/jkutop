@@ -24,6 +24,7 @@ along with jkutop.  If not, see <http://www.gnu.org/licenses/>.
 #include <ctype.h>
 #include <asm/param.h>		/* neded for HZ definition */
 #include <signal.h>
+#include <err.h>
 #include "jkutop.h"
 
 #define DEBUG_BUILDING 1
@@ -115,31 +116,41 @@ int main ( int argc, char **argv )
 	parametres.restrict_to_uid = -1337;
 	parametres.restrict_to_gid = -81;
 	parametres.hertz = sysconf ( _SC_CLK_TCK );
+	parametres.curses = 1;
 
 	/* sets parametres.progname to the name we were called with */
 	get_my_name ( argv[0] ); 
+
+	/* if the name is jkups, turn off curses printing */
+	if ( strcmp ( parametres.progname, "jkups" ) == 0 )
+	{
+		parametres.curses=0;
+	}
 
 	init_fields();
 
 	/*
 	 * get commandline options
 	 */
-	while ( ( opt = getopt ( argc, argv, "u:g:" ) ) > 0 )
+	while ( ( opt = getopt ( argc, argv, "bu:g:" ) ) > 0 )
 	{
 		switch ( opt )
 		{
+			case 'b':
+				parametres.curses = 0;
+				break;
 			case 'u':
 				parametres.restrict_to_uid = get_uid ( optarg );
 				break;
 			case 'g':
 				parametres.restrict_to_gid = get_gid ( optarg );
 				break;
+			default:
+				err ( ERR_OPTION, NULL );
+				break;
 		}
 	}
 
-
-	win = initscr();		/* ncurses initialisation */
-	noecho();				/* don't show keys typed */
 
 	/*
 	 * set short initial delay so the display is updated with useful
@@ -147,7 +158,6 @@ int main ( int argc, char **argv )
 	 * this is eased off to a delay of 3 seconds
 	 */
 	halfdelay ( 3 );
-	getmaxyx ( win, row, col );
 
 	stats_array = malloc ( allocated * sizeof ( ppstat ) );
 	memory = malloc ( sizeof ( mstat ) );
@@ -176,6 +186,13 @@ int main ( int argc, char **argv )
 
 	/* read when the system was booted */
 	read_btime ( procstat );
+
+	if ( parametres.curses == 1 )
+	{
+		win = initscr();		/* ncurses initialisation */
+		noecho();				/* don't show keys typed */
+		getmaxyx ( win, row, col );
+	}
 
 	while ( 1 )
 	{
@@ -310,7 +327,15 @@ int main ( int argc, char **argv )
 	
 		qsort ( stats_array, c, sizeof ( pstat * ), compare_elements );
 
-		print_it ( stats_array, c );
+		if ( parametres.curses == 1 )
+		{
+			print_it ( stats_array, c );
+		}
+		else if ( parametres.curses == 0 && sequence > 0 )
+		{
+			print_it_nocurses ( stats_array, c );
+			break;
+		}
 		halfdelay ( 30 );
 
 		//break;
@@ -633,10 +658,15 @@ void init_fields ( void )
 	char sort[256];
 	char order[256]="";
 	char conffile_fields[MAX_DISPLAY_FIELDS][256];
+
+	memset ( conffile_fields, 0, MAX_DISPLAY_FIELDS * 256 );
+
 	char *home;
 	int i, j=0, fieldindex=0;
 	int got_config_from_conffile = 0;
 	//extern repr fields[];
+
+
 	home = getenv ( "HOME" );
 	strcpy ( conffile, home );
 	strcat ( conffile, "/." );
@@ -659,7 +689,7 @@ void init_fields ( void )
 				}
 				if ( ! strncmp ( bolp, "Fields:", 7 ) )
 				{
-					sscanf ( bolp, "Fields: %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", 
+					sscanf ( bolp, "Fields: %255s %255s %255s %255s %255s %255s %255s %255s %255s %255s %255s %255s %255s %255s %255s %255s %255s %255s %255s %255s", 
 					conffile_fields[0],
 					conffile_fields[1],
 					conffile_fields[2],

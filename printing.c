@@ -37,6 +37,8 @@ int print_it ( ppstat *stats_array, int count )
 	double	total_ticks;
 	MEVENT event;
 
+	output = &printw;
+
 	mousemask(ALL_MOUSE_EVENTS, NULL);
 	total_ticks = parametres.ticks_passed * sysconf ( _SC_NPROCESSORS_ONLN );
 	keypad ( win, TRUE );
@@ -212,6 +214,58 @@ int print_it ( ppstat *stats_array, int count )
 	}
 	return ( i + 1 );
 }
+
+int print_it_nocurses ( ppstat *stats_array, int count )
+{
+	int i, j;
+	time_t t;
+	struct tm *now;
+	char timestring[9];
+	extern pmstat memory;
+	output = &printf;
+
+	mousemask(ALL_MOUSE_EVENTS, NULL);
+	keypad ( win, TRUE );
+	erase();
+
+	t = time ( NULL );
+	now = localtime ( &t );
+	strftime ( timestring, 9, "%H:%M:%S", now );
+	
+	attroff ( A_BOLD );
+
+	/*
+	print the header
+	*/
+	for ( j = 0; j < FIELDS_AVAILABLE; j++ )
+	{
+		if ( display_fields[j] == NULL )
+		{
+			break;
+		}
+		output ( display_fields[j]->header_format, display_fields[j]->fieldname );
+	}
+	printf ( "\n" );
+
+	/*
+	print the data fields
+	*/
+	for ( i = 0; i < count; i++ )
+	{
+		for ( j = 0; j < FIELDS_AVAILABLE; j++ )
+		{
+			if ( display_fields[j] == NULL )
+			{
+				break;
+			}
+			display_fields[j]->printout( stats_array[i], display_fields[j]->identifier );
+		}
+		printf ( "\n" );
+	}
+	return ( i + 1 );
+}
+
+
 
 int mouse_select_sortfield ( int x )
 {
@@ -393,7 +447,6 @@ int show_process_detail ( ppstat *stats_array, int member )
 	halfdelay ( 30 );
 	return ( 0 );
 }
-
 
 
 int displayfield_shift_up ( int focus )
@@ -674,12 +727,12 @@ prepr select_field ( int y, int x, prepr current )
 
 void print_pid ( ppstat entry, int identifier )
 {
-	printw ( fields[identifier].format, entry->pid );
+	output ( fields[identifier].format, entry->pid );
 }
 
 void print_ppid ( ppstat entry, int identifier )
 {
-	printw ( fields[identifier].format, entry->ppid );
+	output ( fields[identifier].format, entry->ppid );
 }
 
 void print_user ( ppstat entry, int identifier )
@@ -689,29 +742,29 @@ void print_user ( ppstat entry, int identifier )
 
 	/* shorten the name to 8 char max */
 	pwentry->pw_name[8] = '\0';
-	printw ( fields[identifier].format, pwentry->pw_name );
+	output ( fields[identifier].format, pwentry->pw_name );
 }
 
 void print_uid ( ppstat entry, int identifier )
 {
-	printw ( fields[identifier].format, entry->uid );
+	output ( fields[identifier].format, entry->uid );
 }
 
 void print_priority ( ppstat entry, int identifier )
 {
 	if ( entry->priority < 0 )
 	{
-		printw ( fields[identifier].format, "rt" );
+		output ( fields[identifier].format, "rt" );
 	}
 	else
 	{
-		printw ( fields[identifier].format_alt, entry->priority );
+		output ( fields[identifier].format_alt, entry->priority );
 	}
 }
 
 void print_niceness ( ppstat entry, int identifier )
 {
-	printw ( fields[identifier].format, entry->niceness );
+	output ( fields[identifier].format, entry->niceness );
 }
 
 void print_virt ( ppstat entry, int identifier )
@@ -725,11 +778,11 @@ void print_virt ( ppstat entry, int identifier )
 	}
 	if ( c > 1 )
 	{
-		printw ( fields[identifier].format, (long) temp, suffixes[c] );
+		output ( fields[identifier].format, (long) temp, suffixes[c] );
 	}
 	else
 	{
-		printw ( fields[identifier].format_alt, (long) temp );
+		output ( fields[identifier].format_alt, (long) temp );
 	}
 }
 
@@ -745,28 +798,28 @@ void print_res ( ppstat entry, int identifier )
 	}
 	if ( c > 1 )
 	{
-		printw ( fields[identifier].format, (long unsigned) temp, suffixes[c] );
+		output ( fields[identifier].format, (long unsigned) temp, suffixes[c] );
 	}
 	else
 	{
-		printw ( fields[identifier].format_alt, (long unsigned) temp );
+		output ( fields[identifier].format_alt, (long unsigned) temp );
 	}
 }
 
 void print_status ( ppstat entry, int identifier )
 {
-	printw ( fields[identifier].format, entry->state );
+	output ( fields[identifier].format, entry->state );
 }
 
 void print_cpu_percent ( ppstat entry, int identifier )
 {
-	printw ( fields[identifier].format, entry->cpu_percent );
+	output ( fields[identifier].format, entry->cpu_percent );
 }
 
 void print_mem_percent ( ppstat entry, int identifier )
 {
 	extern pmstat memory;
-	printw ( fields[identifier].format, ( (float) entry->res * sysconf( _SC_PAGESIZE ) * .1024 ) / memory->memtotal );
+	output ( fields[identifier].format, ( (float) entry->res * sysconf( _SC_PAGESIZE ) * .1024 ) / memory->memtotal );
 }
 
 void print_swap ( ppstat entry, int identifier )
@@ -780,11 +833,11 @@ void print_swap ( ppstat entry, int identifier )
 	}
 	if ( c > 1 )
 	{
-		printw ( fields[identifier].format, temp, suffixes[c] );
+		output ( fields[identifier].format, temp, suffixes[c] );
 	}
 	else
 	{
-		printw ( fields[identifier].format_alt, temp );
+		output ( fields[identifier].format_alt, temp );
 	}
 }
 
@@ -801,17 +854,17 @@ void print_time ( ppstat entry, int identifier )
 
 	if ( min >= 1000 )
 	{
-		printw ( fields[identifier].format, min, sec );
+		output ( fields[identifier].format, min, sec );
 	}
 	else
 	{
-		printw ( fields[identifier].format_alt, min, sec, ms );
+		output ( fields[identifier].format_alt, min, sec, ms );
 	}
 }
 
 void print_name ( ppstat entry, int identifier )
 {
-	printw ( fields[identifier].format, entry->name );
+	output ( fields[identifier].format, entry->name );
 }
 
 void print_minflt ( ppstat entry, int identifier )
@@ -825,11 +878,11 @@ void print_minflt ( ppstat entry, int identifier )
 	}
 	if ( c > 0 )
 	{
-		printw ( fields[identifier].format, (long unsigned) temp, suffixes[c] );
+		output ( fields[identifier].format, (long unsigned) temp, suffixes[c] );
 	}
 	else
 	{
-		printw ( fields[identifier].format_alt, (long unsigned) temp );
+		output ( fields[identifier].format_alt, (long unsigned) temp );
 	}
 }
 
@@ -844,11 +897,11 @@ void print_majflt ( ppstat entry, int identifier )
 	}
 	if ( c > 0 )
 	{
-		printw ( fields[identifier].format, (long unsigned) temp, suffixes[c] );
+		output ( fields[identifier].format, (long unsigned) temp, suffixes[c] );
 	}
 	else
 	{
-		printw ( fields[identifier].format_alt, (long unsigned) temp );
+		output ( fields[identifier].format_alt, (long unsigned) temp );
 	}
 }
 
@@ -863,17 +916,17 @@ void print_majflt_delta ( ppstat entry, int identifier )
 	}
 	if ( c > 0 )
 	{
-		printw ( fields[identifier].format, (long unsigned) temp, suffixes[c] );
+		output ( fields[identifier].format, (long unsigned) temp, suffixes[c] );
 	}
 	else
 	{
-		printw ( fields[identifier].format_alt, (long unsigned) temp );
+		output ( fields[identifier].format_alt, (long unsigned) temp );
 	}
 }
 
 void print_system_cpu_percent ( ppstat entry, int identifier )
 {
-	printw ( fields[identifier].format, entry->system_cpu_percent );
+	output ( fields[identifier].format, entry->system_cpu_percent );
 }
 
 void print_cpuset ( ppstat entry, int identifier )
@@ -881,11 +934,11 @@ void print_cpuset ( ppstat entry, int identifier )
 	char temp;
 	temp = entry->cpuset[30];
 	entry->cpuset[30] = '\n';
-	printw ( fields[identifier].format, entry->cpuset );
+	output ( fields[identifier].format, entry->cpuset );
 	entry->cpuset[30] = temp;
 }
 
 void print_nthr ( ppstat entry, int identifier )
 {
-	printw ( fields[identifier].format, entry->num_threads );
+	output ( fields[identifier].format, entry->num_threads );
 }

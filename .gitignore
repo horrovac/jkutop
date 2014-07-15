@@ -1,10 +1,12 @@
 jkutop
+jkups
 *.o
 *.swp
 Makefile
 Makefile.in
 aclocal*
 autom4te*
+compile
 config.*
 configure
 depcomp
