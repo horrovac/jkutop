@@ -139,8 +139,10 @@ typedef struct parametres
 	long	requested_fields; /*bitmask, read comment below*/
 	char	requested_user[256];
 	char	requested_group[256];
+	char	requested_cpuset[CPUSET_NAME_LENGTH_MAX];
 	int		restrict_to_uid; /* show only processes of uid */
 	int		restrict_to_gid; /* show only processes of gid */
+	int		restrict_to_cpuset; /* boolean */
 	int		hertz;	/* system clock frequency */
 	cstats	cpu_stats[2];
 	unsigned long long	ticks_lastpass;

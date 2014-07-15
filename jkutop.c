@@ -109,15 +109,6 @@ int main ( int argc, char **argv )
 	sigemptyset ( &sigset );
 	sigaddset ( &sigset, SIGALRM );
 
-
-	parametres.sortby = CPU;
-	parametres.reversesort = 0;
-	parametres.requested_fields = 0;
-	parametres.restrict_to_uid = -1337;
-	parametres.restrict_to_gid = -81;
-	parametres.hertz = sysconf ( _SC_CLK_TCK );
-	parametres.curses = 1;
-
 	/* sets parametres.progname to the name we were called with */
 	get_my_name ( argv[0] ); 
 
@@ -132,32 +123,29 @@ int main ( int argc, char **argv )
 	/*
 	 * get commandline options
 	 */
-	while ( ( opt = getopt ( argc, argv, "bu:g:" ) ) > 0 )
+	while ( ( opt = getopt ( argc, argv, "bg:s:u:" ) ) > 0 )
 	{
 		switch ( opt )
 		{
 			case 'b':
 				parametres.curses = 0;
 				break;
-			case 'u':
-				parametres.restrict_to_uid = get_uid ( optarg );
-				break;
 			case 'g':
 				parametres.restrict_to_gid = get_gid ( optarg );
+				break;
+			case 's':
+				parametres.requested_fields |= 1 << CPUSET;
+				parametres.restrict_to_cpuset = 1;
+				strncpy ( parametres.requested_cpuset, optarg, CPUSET_NAME_LENGTH_MAX - 1 );
+				break;	
+			case 'u':
+				parametres.restrict_to_uid = get_uid ( optarg );
 				break;
 			default:
 				err ( ERR_OPTION, NULL );
 				break;
 		}
 	}
-
-
-	/*
-	 * set short initial delay so the display is updated with useful
-	 * data as soon as possible. Right after the first call of print_it
-	 * this is eased off to a delay of 3 seconds
-	 */
-	halfdelay ( 3 );
 
 	stats_array = malloc ( allocated * sizeof ( ppstat ) );
 	memory = malloc ( sizeof ( mstat ) );
@@ -191,6 +179,13 @@ int main ( int argc, char **argv )
 	{
 		win = initscr();		/* ncurses initialisation */
 		noecho();				/* don't show keys typed */
+	
+		/*
+		 * set short initial delay so the display is updated with useful
+		 * data as soon as possible. Right after the first call of print_it
+		 * this is eased off to a delay of 3 seconds
+		 */
+		halfdelay ( 3 );
 		getmaxyx ( win, row, col );
 	}
 
@@ -666,6 +661,15 @@ void init_fields ( void )
 	int got_config_from_conffile = 0;
 	//extern repr fields[];
 
+	parametres.sortby = CPU;
+	parametres.reversesort = 0;
+	parametres.requested_fields = 0;
+	parametres.restrict_to_uid = -1337;
+	parametres.restrict_to_gid = -81;
+	parametres.hertz = sysconf ( _SC_CLK_TCK );
+	parametres.curses = 1;
+	parametres.restrict_to_cpuset = 0;
+	memset ( parametres.requested_cpuset, 0, CPUSET_NAME_LENGTH_MAX );
 
 	home = getenv ( "HOME" );
 	strcpy ( conffile, home );
