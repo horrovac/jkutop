@@ -136,7 +136,15 @@ int main ( int argc, char **argv )
 			case 's':
 				parametres.requested_fields |= 1 << CPUSET;
 				parametres.restrict_to_cpuset = 1;
-				strncpy ( parametres.requested_cpuset, optarg, CPUSET_NAME_LENGTH_MAX - 1 );
+				if ( strncmp ( optarg, "/", 1 ) != 0 )
+				{
+					strcpy ( parametres.requested_cpuset, "/" );
+					strncpy ( parametres.requested_cpuset+1, optarg, CPUSET_NAME_LENGTH_MAX - 2 );
+				}
+				else
+				{
+					strncpy ( parametres.requested_cpuset, optarg, CPUSET_NAME_LENGTH_MAX - 1 );
+				}
 				break;	
 			case 'u':
 				parametres.restrict_to_uid = get_uid ( optarg );
@@ -275,6 +283,7 @@ int main ( int argc, char **argv )
 						read_cpuset ( stats_buffer, dir_entry->d_name );
 						if ( parametres.restrict_to_cpuset == 1 && strncmp ( stats_buffer->cpuset, parametres.requested_cpuset, CPUSET_NAME_LENGTH_MAX ) != 0 )
 						{
+							close ( fd );
 							goto next_iteration;
 						}
 					}

@@ -738,12 +738,18 @@ void print_ppid ( ppstat entry, int identifier )
 void print_user ( ppstat entry, int identifier )
 {
 	struct passwd *pwentry;
-	pwentry = getpwuid ( entry->uid );
-
-	/* shorten the name to 8 char max */
-	pwentry->pw_name[8] = '\0';
-	output ( fields[identifier].format, pwentry->pw_name );
+	if ( ( pwentry = getpwuid ( entry->uid ) ) != NULL )
+	{
+		/* shorten the name to 8 char max */
+		pwentry->pw_name[8] = '\0';
+		output ( fields[identifier].format, pwentry->pw_name );
+	}
+	else
+	{
+		output ( fields[identifier].format, "unknown" );
+	}
 }
+
 
 void print_uid ( ppstat entry, int identifier )
 {
