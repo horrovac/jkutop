@@ -109,6 +109,8 @@ int main ( int argc, char **argv )
 	sigemptyset ( &sigset );
 	sigaddset ( &sigset, SIGALRM );
 
+	init_fields();
+
 	/* sets parametres.progname to the name we were called with */
 	get_my_name ( argv[0] ); 
 
@@ -118,7 +120,6 @@ int main ( int argc, char **argv )
 		parametres.curses=0;
 	}
 
-	init_fields();
 
 	/*
 	 * get commandline options
