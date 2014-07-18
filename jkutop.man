@@ -3,9 +3,9 @@
 .SH NAME
 JKUtop/JKUps \- a rewrite of top
 .SH SYNOPSIS
-.B jkutop [-u (username|uid)] [-g (groupname|gid)] [-b]
+.B jkutop [-u (username|uid)] [-g (groupname|gid)] [-b] [-s cpuset]
 .br
-.B jkups [-u (username|uid)] [-g (groupname|gid)]
+.B jkups [-u (username|uid)] [-g (groupname|gid)] [-s cpuset]
 .SH DESCRIPTION
 .\" Add any additional description here
 .PP
@@ -17,14 +17,17 @@ If called as jkups, JKUtop does not use ncurses, instead it prints out a full pr
 .PP
 Currently there is a limited set of command line options:
 .TP
-\fB-u username|uid\fR
-Restrict displayed jobs to those owned by this user or UID
+\fB-b\fR
+Batch execution - disable the ncurses interface and print out a complete list of processes to STDOUT. Equivalent to calling jkutop with the name jkups
 .TP
 \fB-g groupname|gid\fR
 Restrict displayed jobs to those owned by this group or GID
 .TP
-\fB-b\fR
-Batch execution - disable the ncurses interface and print out a complete list of processes to STDOUT. Equivalent to calling jkutop with the name jkups
+\fB-s cpuset\fR
+Restrict displayed jobs to those running within the specific cpuset
+.TP
+\fB-u username|uid\fR
+Restrict displayed jobs to those owned by this user or UID
 .PP
 Most modifications are done interactively. You can use any of:
 .TP
@@ -114,7 +117,7 @@ Hold down shift key to enable normal mouse operation for click-and-drag or multi
 .PP
 The delay between updates is accomplished by ncurses' halfdelay mode while waiting for input. This makes updates inaccurate. The delay is the sum of halfdelay timeout and the time required to update data. Also, any user input causes halfdelay to exit, so every input triggers a new update. It works, but is messy. The desireable behaviour would be to aim for fixed updates of about 3 seconds if the data can be updated in that time, and to extend if not (which can happen on a very big and busy system).
 .SH "REPORTING BUGS"
-Report acctdb bugs to (and request features from) faruk.kujundzic@jku.at
+Report bugs to (and request features from) faruk.kujundzic@jku.at
 .SH AUTHOR
 Written by Faruk Kujundzic
 .SH COPYRIGHT

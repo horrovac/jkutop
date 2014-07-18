@@ -109,10 +109,11 @@ int main ( int argc, char **argv )
 	sigemptyset ( &sigset );
 	sigaddset ( &sigset, SIGALRM );
 
-	init_fields();
 
 	/* sets parametres.progname to the name we were called with */
 	get_my_name ( argv[0] ); 
+
+	init_fields();
 
 	/* if the name is jkups, turn off curses printing */
 	if ( strcmp ( parametres.progname, "jkups" ) == 0 )
